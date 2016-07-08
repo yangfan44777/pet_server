@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+  <meta content="telephone=no" name="format-detection">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <script src="//cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
+  <title>宠拜</title>
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      max-width:640px;
+      padding-bottom: 50px;
+      font-family: Arial,"Microsoft YaHei"
+    }
+    .main-img{
+      width:100%;
+      margin-top:10px;
+    }
+    .header{
+      height:50px;
+      line-height: 50px;
+      color:#333;
+      font-size:14px;
+      text-align: center;
+      border-bottom: 1px solid #f1f1f1;
+      margin-bottom: 10px;
+    }
+    .avator{
+      overflow: hidden;
+      float:left;
+    }
+    .avator-image{
+      width: 50px;
+      border-radius: 50%;
+      float: left;
+    }
+    .user-info{
+      overflow: hidden;
+      padding-left: 20px;
+      margin-top:10px;
+    }
+    .user-desc{
+      font-size: 12px;
+      float: left;
+      line-height: 20px;
+      margin-top: 5px;
+      margin-left: 12px;
+    }
+    .rep {
+      font-size: 12px;
+      padding: 5px 20px;
+      line-height: 19px;
+    }
+    .rep .h{
+      padding:0 5px;
+      color:#999;
+    }
+    .rep .c{
+      color:#999;
+    }
+    .comments {
+      margin-top:10px;
+    }
+    .content{
+      padding: 10px 20px 0;
+      font-size: 14px;
+    }
+    .likes{
+      overflow: hidden;
+      padding: 10px 20px 0 20px;
+    }
+    .liker{
+      border-radius: 50%;
+      width:20px;
+      height:20px;
+      float:left;
+      margin-right:5px;
+      margin-bottom:5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div class="header">宠拜</div> -->
+  <div class="user-info">
+    <div class="avator">
+      <img class="avator-image" src="">
+    </div>
+    <div class="user-desc">
+      <div class="user-nick"></div>
+      <div class="date"></div>
+    </div>
+  </div>
+  <img class="main-img" src="">
+
+  <div class="likes"></div>
+
+  <div class="content"></div>
+
+  <div class="comments">
+
+  </div>
+
+  <script>
+  var getRequestParam = function( param, uri ){
+      var value;
+      uri = uri || window.location.href;
+      value = uri.match(new RegExp('[\?\&]' + param + '=([^\&\#]*)([\&\#]?)', 'i'));
+      return value ? decodeURIComponent( value[1] ) : value;
+  }
+
+  var formatDate = function( date ) {
+    var result = ''
+    var targetTime = new Date( date )
+    var timeDiff = ( new Date().getTime() ) - targetTime.getTime()
+    var sec = timeDiff / 1000
+    var min = timeDiff / 1000 / 60
+    var hour = timeDiff / 1000 / 60 / 60
+    var day = timeDiff / 1000 / 60 / 60 / 24
+    var week = timeDiff / 1000 / 60 / 60 / 24 / 7
+    var month = timeDiff / 1000 / 60 / 60 / 24 / 7 / 30
+    var year = timeDiff / 1000 / 60 / 60 / 24 / 7 / 30 / 365
+
+    if( year >= 1 ) {
+      result = parseInt( year ) + '年前'
+    } else if( month >= 1 ) {
+      result = parseInt( month ) + '月前'
+    } else if( week >= 1 ) {
+      result = parseInt( week ) + '周前'
+    } else if( day >= 1 ) {
+      result = parseInt( day ) + '天前'
+    } else if( hour >= 1 ) {
+      result = parseInt( hour ) + '小时前'
+    } else if( min >= 1 ) {
+      result = parseInt( min ) + '分钟前'
+    } else {
+      result = parseInt( sec ) + '秒前'
+    }
+    return result
+  }
+  var feed_id = getRequestParam( 'id' )
+  $.ajax( {
+    url : '/api/feed/' + feed_id,
+    method : 'GET',
+    dataType : 'json',
+    success : function( data ) {
+      console.log(data)
+      $( '.main-img' ).attr( 'src', data.image )
+      $( '.user-nick' ).text( data.nick )
+      $( '.date' ).text( formatDate( data.date ) )
+      $( '.avator-image' ).attr( 'src', data.avator )
+      $( '.content' ).text( data.topic ? data.topic + data.content : data.content )
+
+      data.comments.forEach( function( comment, index, arr ) {
+        $( '.comments' ).append(
+          '<div class="rep">'
+          + comment.commenter_nick
+          + ( comment.commentee_nick ? '<span class="h">回复</span>' + comment.commentee_nick : '' )
+          + ' : '
+          + '<span class="c">' + comment.content + '</span>'
+          + '</div>'
+        )
+      } )
+
+      data.likes.forEach( function( like, index, arr ) {
+        $( '.likes' ).append( '<img class="liker" src="' + like.liker_avator + '">' )
+      } )
+    }
+  } )
+  </script>
+</body>
+</html>
