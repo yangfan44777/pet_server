@@ -1,5 +1,7 @@
 var Notify = require( '../models/notify' )
+var User = require( '../models/user' )
 var express = require( 'express' )
+var http = require('http')
 var router = express.Router()
 
 router.route( '/notify/unread/:receiver' )
@@ -85,6 +87,9 @@ router.route( '/notify/:receiver' )
   } )
   // 提交一个 notify
   .post( ( req, res ) => {
+
+
+
     // console.log( req.body )
     Notify.findOne( { receiver : req.params.receiver }, ( err, notifies ) => {
       if( err ){
@@ -101,6 +106,8 @@ router.route( '/notify/:receiver' )
             return res.send( err )
           }
 
+          pushNotify( req.params.receiver )
+
           res.json( { message : 'Notify added.' } )
 
         } )
@@ -111,12 +118,34 @@ router.route( '/notify/:receiver' )
           if( err ){
             return res.send( err )
           }
+
+          pushNotify( req.params.receiver )
+
           res.json( { message : 'Notify updated.' } )
+
 
         } )
       }
 
     } )
   } )
+
+
+  function pushNotify( receiver ) {
+    User.findOne( { openid : receiver } ).exec( ( err, user ) => {
+      if( err ) {
+        return res.send( err )
+      }
+
+      if( user && user.device_token ) {
+
+        http.get( 'http://101.200.150.4/pet/petsPushServer.php?dt=' + user.device_token, function(){
+                console.log('push send')
+        } )
+
+      }
+
+    } )
+  }
 
   module.exports = router

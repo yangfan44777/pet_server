@@ -9,6 +9,26 @@ var router = express.Router()
 var _ = require( 'underscore' )
 
 
+router.route( '/feeds/delete/:feed_id' )
+  .put( ( req, res ) => {
+    Feed.findOne( { _id : req.params.feed_id }, ( err, feed ) => {
+
+      if( err ){
+        return res.send( err )
+      }
+
+      feed.isdeleted = 1
+
+      feed.save( ( err ) => {
+        if( err ){
+          return res.send( err )
+        }
+        res.json( { message : 'Feed updated.' } )
+      } )
+
+    } )
+  } )
+
 // http://192.168.1.102:8000/api/feeds/following/oWSLis-9ebxj3ff_Tgy8e7pSLsMo/0/0/1
 router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
   .get( ( req, res ) => {
@@ -35,10 +55,10 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
           len = ( 5 + i ) > user.news.length ? user.news.length : ( 5 + i )
         } else {
           i = 0
-          len = latestIndex === -1 ? 5 : latestIndex
-          len = len > user.news.length ? user.news.length : len
-          len = len === 0 ? 1 : len
+          len = latestIndex === -1 ? 5 + 15 : latestIndex + 20
+          len = len === 0 ? 20 : len
           len = ( req.params.latest == 0 && req.params.earliest == 0 && user.news.length === 1 ) ? 1 : len
+          len = len > user.news.length ? user.news.length : len
         }
 
         var startIndex = i
@@ -209,10 +229,15 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
           len = ( 5 + i ) > topic.feeds.length ? topic.feeds.length : ( 5 + i ) // 9
         } else {
           i = 0
-          len = latestIndex === -1 ? 5 : latestIndex // 5
-          len = len > topic.feeds.length ? topic.feeds.length : len // 5
-          len = len === 0 ? 1 : len // 5
+          len = latestIndex === -1 ? 5 + 15 : latestIndex + 20
+          len = len === 0 ? 20 : len
           len = ( req.params.latest == 0 && req.params.earliest == 0 && topic.feeds.length === 1 ) ? 1 : len
+          len = len > topic.feeds.length ? topic.feeds.length : len
+          // i = 0
+          // len = latestIndex === -1 ? 5 : latestIndex // 5
+          // len = len > topic.feeds.length ? topic.feeds.length : len // 5
+          // len = len === 0 ? 1 : len // 5
+          // len = ( req.params.latest == 0 && req.params.earliest == 0 && topic.feeds.length === 1 ) ? 1 : len
         }
         var startIndex = i
 

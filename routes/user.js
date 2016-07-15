@@ -91,13 +91,14 @@ router.route( '/user/info/:openid/:access_token' )
             user.nickname = req.body.nickname
             user.province = req.body.province
             user.city = req.body.city
+            user.device_token = req.body.device_token || ''
             // user[ prop ] = req.body[ prop ]
           }
           user.save( ( err ) => {
             if( err ) {
               return res.send( err )
             }
-            console.log( 'hehehehe' )
+            // console.log( 'hehehehe' )
             return res.send( { message : 'User info synced.', not_new : 1 } )
           } )
           // res.send( { message : 'User exist.' } )

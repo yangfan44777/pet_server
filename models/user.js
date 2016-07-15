@@ -11,7 +11,8 @@ const userSchema = new Schema( {
 
   follower : Number,
   follow : Number,
-  news : Array
+  news : Array,
+  device_token : String
 } )
 
 module.exports = mongoose.model( 'User', userSchema )

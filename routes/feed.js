@@ -10,6 +10,9 @@ router.route( '/feed/:feed_id' )
       if( err ) {
         return res.send( err )
       }
+      if( feed.isdeleted === 1 ) {
+        return res.json( { isdeleted : 1 } )
+      }
       var _counter = 0
       Comment.find( { feed_id : `${feed._id}` } )
         // .sort( { _id : -1 } )

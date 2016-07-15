@@ -12,7 +12,8 @@ const feedSchema = new Schema( {
   like_count : Number,
   comments : [  ],
   comment_count : Number,
-  topic : String
+  topic : String,
+  isdeleted : Number
 } )
 
 module.exports = mongoose.model( 'Feed', feedSchema )

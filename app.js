@@ -15,7 +15,7 @@ var app = express();
 
 var dbName = 'petDB'
 
-var connectionString = 'mongodb://127.0.0.1/' + dbName
+var connectionString = 'mongodb://101.200.150.4/' + dbName
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
