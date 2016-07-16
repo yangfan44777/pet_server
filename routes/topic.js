@@ -4,8 +4,16 @@ var router = express.Router()
 
 router.route( '/topic' )
   // 获取最新4个 topic
-  .get( ( req, res ) => {
+  /*.get( ( req, res ) => {
     Topic.find().sort( { _id : -1 } ).limit( 4 ).exec( ( err, topics ) => {
+      if( err ) {
+        return res.send( err )
+      }
+      res.json( topics )
+    } )
+  } )*/
+  .get( ( req, res ) => {
+    Topic.pageQuery(1, 4, null, null, {sort:{_id: -1}}, ( err, topics ) => {
       if( err ) {
         return res.send( err )
       }
