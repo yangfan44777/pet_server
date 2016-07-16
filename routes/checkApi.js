@@ -134,6 +134,8 @@ var checkApi2 = function (secret) {
             } catch (e) {
                 res.end();
             }
+        } else {
+            res.end();
         }
     });
     return router;
