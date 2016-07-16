@@ -1,3 +1,5 @@
+"use strict";
+
 var Feed = require( '../models/feed' )
 var Comment = require( '../models/comment' )
 var Like = require( '../models/like' )

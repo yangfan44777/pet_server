@@ -11,8 +11,25 @@ var feed = require( './routes/feed' )
 var follow = require( './routes/follow' )
 var notify = require( './routes/notify' )
 var topic = require( './routes/topic' )
+var checkApi = require('./routes/checkApi');
+var FileStreamRotator = require('file-stream-rotator');
+var logger = require('morgan');
 var app = express();
 
+
+/* access日志 */
+var logDirectory = __dirname + '/logs';
+var accessLogStream = FileStreamRotator.getStream({
+    date_format: 'YYYYMMDD',
+    filename: logDirectory + '/access-%DATE%.log',
+    frequency: 'daily',
+    verbose: false
+});
+
+app.use(logger('combined', {stream: accessLogStream}));
+
+
+/* 数据库 */
 var dbName = 'petDB'
 
 var connectionString = 'mongodb://101.200.150.4/' + dbName
@@ -25,8 +42,15 @@ db.once('open', function (callback) {
 
 mongoose.connect( connectionString )
 
+/* 静态目录 */
+app.use( express.static(__dirname+ '/public')  )
+
 app.use( bodyParser.json() )
 app.use( bodyParser.urlencoded() )
+
+/* 验证api来源及是否合法 */
+var secretkey = 'dbb6e2c753660cbafa25a2639c059e5f';
+app.use('/', checkApi(secretkey));
 app.use( '/api', feeds )
 app.use( '/api', comment )
 app.use( '/api', user )
@@ -38,6 +62,5 @@ app.use( '/api', follow )
 app.use( '/api', notify )
 app.use( '/api', topic )
 
-app.use( express.static(__dirname+ '/public')  )
 
 module.exports = app;
