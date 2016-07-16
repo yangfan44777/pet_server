@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var crypto = require('crypto');
+var crypto_js = require('crypto-js');
 
 /**
  * 解密客户端发来的请求
@@ -121,11 +121,16 @@ var checkApi2 = function (secret) {
         if (query.ticket) {
             /* 经过解码得到的信息 */
             try {
-                var decipher = crypto.createDecipher('aes192', secret);
+                var bytes  = crypto_js.AES.decrypt(query.ticket, secret);
+                var decryptedData = bytes.toString(crypto_js.enc.Utf8);
+
+                /*var decipher = crypto.createDecipher('aes192', secret);
                 var decTicket = decipher.update(query.ticket, 'hex', 'utf8');
-                decTicket += decipher.final('utf8');
+
+                decTicket += decipher.final('utf8');*/
+                var decTicket = decryptedData;
                 
-                if (!guidPool.has(decTicket)) {
+                if (decTicket.length && !guidPool.has(decTicket)) {
                     guidPool.push(decTicket);
                     next();
                 } else {
