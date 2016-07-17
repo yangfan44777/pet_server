@@ -1,5 +1,3 @@
-var async = require('async');
-
 var pageQuery = function (currentPage, pageSize, conditions, fields, options) {
 
 	if ('function' == typeof conditions) {
