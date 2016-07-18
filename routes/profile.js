@@ -186,7 +186,58 @@ router.route( '/profile/fans/detail/:userid' )
 
 
 router.route( '/profile/recommend/detail' )
-  .get( ( req, res ) => {
+  .get(async ( req, res ) => {
+
+     /* offset为第几页 */
+    var offset = parseInt(req.query.offset) || 1;
+
+    /* limit为每页个数上限 */
+    var limit = parseInt(req.query.limit) || 20;
+
+    try {
+    
+        var users = await User.pageQuery(offset, limit, null, null, {sort: {_id: -1}});
+
+        users = users.map((user) => {
+
+            return new Promise(async (resolve, reject) => {
+                
+                const userid = user.openid;
+                
+                try {
+                    //var userDetail = User.findOne({openid: userid}).exec();
+
+                    const feedsResult = [];
+                    var feeds = await Feed.pageQuery(1, 3, {userid: user.openid}, null, {sort: {_id: -1}});
+                    // console.log( feeds )
+                    feeds.forEach((feed) => {
+                        feedsResult.push({
+                            image: feed.image
+                        });
+                    });
+
+                    resolve({
+                        userid : user.openid,
+                        nickname : user.nickname,
+                        headimgurl : user.headimgurl,
+                        feeds : feedsResult,
+                        fan_c : user.follower
+                    });
+
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+
+        return res.json(await Promise.all(users));
+
+    } catch (err) {
+        return res.send(err);
+    }
+});
+
+/*
 
     User.find().sort( { _id : -1 } ).limit( 50 ).exec( ( err, users ) => {
       if( err ) {
@@ -242,6 +293,6 @@ router.route( '/profile/recommend/detail' )
     } )
 
   } )
-
+*/
 
   module.exports = router
