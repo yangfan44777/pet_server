@@ -1,4 +1,6 @@
 var mongoose = require( 'mongoose' )
+var ModelExtend = require('./modelExtend.js');
+
 const Schema = mongoose.Schema
 
 const feedSchema = new Schema( {
@@ -16,4 +18,8 @@ const feedSchema = new Schema( {
   isdeleted : Number
 } )
 
-module.exports = mongoose.model( 'Feed', feedSchema )
+var Feed = mongoose.model( 'Feed', feedSchema );
+
+ModelExtend.doApply(Feed);
+
+module.exports = Feed;//mongoose.model( 'Feed', feedSchema )
