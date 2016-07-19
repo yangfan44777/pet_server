@@ -27,6 +27,11 @@ gulp.task('default', () => {
     gulp.src('./logs', {base: './'})
         .pipe(gulp.dest('output'));
 
+    gulp.src('./public/**', {base: './'})
+        .pipe(gulp.dest('output'));
+
+    gulp.src('./views/**', {base: './'})
+        .pipe(gulp.dest('output'));
 
     gulp.src('./node_modules/**', {base: './'})
         .pipe(gulp.dest('output'));

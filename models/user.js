@@ -1,4 +1,6 @@
 var mongoose = require( 'mongoose' )
+var ModelExtend = require('./modelExtend.js');
+
 const Schema = mongoose.Schema
 
 const userSchema = new Schema( {
@@ -14,5 +16,7 @@ const userSchema = new Schema( {
   news : Array,
   device_token : String
 } )
+var User = mongoose.model( 'User', userSchema );
 
-module.exports = mongoose.model( 'User', userSchema )
+ModelExtend.doApply(User);
+module.exports = User;
