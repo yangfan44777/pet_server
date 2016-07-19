@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+  <meta content="telephone=no" name="format-detection">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./stylesheets/article_manage.css" type="text/css" rel="stylesheet">
+  <title>文章管理后台</title>
+</head>
+<body ng-app="app">
+
+<div ng-controller="articleList">
+  <div ng-repeat="l in list" class="list-item">
+    <h5 class="title" ng-bind="l.title" ng-click="gotoDetail(l)"></h5>
+    <div ng-click="gotoDetail(l)" ng-bind="l.desc"></div>
+    <button ng-class="{ true : 'btn-default', false : 'btn-success' }[!!l.has_recommend]" class="btn btn-sm btn-block" ng-click="recommendThis(l)">推荐</button>
+  </div>
+</div>
+
+  <script src="//cdn.bootcss.com/angular.js/1.5.7/angular.min.js"></script>
+  <script>
+    angular.module( 'app', [] )
+      .controller( 'articleList', [ '$scope', '$http', function( $scope, $http ) {
+
+
+        $scope.recommendThis = function( item ) {
+          if( item.has_recommend ) return false
+          $http( {
+            method : 'post',
+            url : '/api/article/recommend',
+            data : {
+                "id" : item.id,
+                "title" : item.title,
+                "desc" : item.desc,
+                "url" : item.url,
+                "cover" : item.cover,
+                "content" : item.content,
+                "tags" : [],
+                "category" : "1"
+            }
+          } ).success( function() {
+            item.has_recommend = 1
+            console.log( 111 )
+          } )
+        }
+
+
+        $scope.gotoDetail = function( item ) {
+          localStorage.setItem( 'scroll_top', document.body.scrollTop )
+          window.location.href = item.url
+        }
+
+        $http.get( '/api/article/all' )
+          .success(function(response) {
+            var result = []
+            response.forEach( function( item, index, arr ) {
+              result.push( {
+                "id" : item.id,
+                "title" : item.title,
+                "desc" : item.desc,
+                "url" : item.url.replace( /amp;/g, '' ),
+                "cover" : item.cover,
+                "content" : item.content,
+                "tags" : [],
+                "category" : "1",
+                "has_recommend" : item.has_recommend
+              } )
+            } )
+            $scope.list = result
+            setTimeout( function() {
+              document.body.scrollTop = parseInt( localStorage.getItem( 'scroll_top' ) )
+            }, 0 )
+            // $scope.list = response
+          });
+      } ] )
+  </script>
+</body>
+</html>

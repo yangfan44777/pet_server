@@ -1,6 +1,6 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
- 
+
 gulp.task('default', () => {
     gulp.src('./*.js')
         .pipe(babel({
@@ -30,5 +30,8 @@ gulp.task('default', () => {
 
     gulp.src('./node_modules/**', {base: './'})
         .pipe(gulp.dest('output'));
+
+    gulp.src( './public/**/*', {base : './' } )
+      .pipe( gulp.dest( 'output' ) )
 
 });
