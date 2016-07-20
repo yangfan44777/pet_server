@@ -43,4 +43,15 @@ router.route( '/topic/:title' )
     } )
   } )
 
+
+router.route( '/topic/list/all' )
+  .get( async ( req, res ) => {
+    var topics = await Topic.find().sort( { _id : -1 } ).exec()
+    topics = topics.map( ( t ) => {
+      t.feeds = []
+      return t
+    } )
+    res.json( topics )
+  } )
+
   module.exports = router
