@@ -72,6 +72,7 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
                   .exec( ( err, comments ) => {
 
                     if( ! err ) {
+                      // comments = _.filter(comments, function(comment){ return comment.isdeleted !== 1 })
                       feed.comments = comments
                       feed.comment_count = comments.length
                       feeds.push( feed )
@@ -249,6 +250,7 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
                   .exec( ( err, comments ) => {
 
                     if( ! err ) {
+                      comments = _.filter(comments, function(comment){ return comment.isdeleted !== 1 })
                       feed.comments = comments
                       feed.comment_count = comments.length
                       feeds.push( feed )

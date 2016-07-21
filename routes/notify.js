@@ -22,6 +22,24 @@ router.route( '/notify/unread/:receiver' )
     } )
   } )
 
+router.route( '/notify/all/:receiver' )
+  .get( ( req, res ) => {
+    Notify.findOne( { receiver : req.params.receiver } ).exec( ( err, notifies ) => {
+      if( err ) {
+        return res.send( err )
+      }
+      var result = []
+      if( notifies ) {
+        notifies.notifies.forEach( ( notify ) => {
+          result.unshift( notify )
+        } )
+      } else {
+        result = []
+      }
+      res.json( result )
+    } )
+  } )
+
 router.route( '/notify/read/:receiver/:notify_id' )
   .put( ( req, res ) => {
     Notify.findOne( { receiver : req.params.receiver }, ( err, notifies ) => {

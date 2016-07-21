@@ -2,6 +2,27 @@ var Comment = require( '../models/comment' )
 var express = require( 'express' )
 var router = express.Router()
 
+
+router.route( '/comment/delete/:comment_id' )
+  .put( ( req, res ) => {
+    Comment.findOne( { _id : req.params.comment_id }, ( err, comment ) => {
+
+      if( err ){
+        return res.send( err )
+      }
+
+      comment.isdeleted = 1
+
+      comment.save( ( err ) => {
+        if( err ){
+          return res.send( err )
+        }
+        res.json( { message : 'Comment updated.' } )
+      } )
+
+    } )
+  } )
+
 router.route( '/comment/:feed_id' )
   .get( ( req, res ) => {
     Comment.find( { feed_id : req.params.feed_id } ).exec( ( err, comments ) => {
