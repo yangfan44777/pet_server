@@ -62,7 +62,7 @@ var pageQueryFeeds = function (orientation, startId, limit, conditions, fields, 
 	return new Promise(function (resolve, reject) {
 
 		try {
-			var stream = self.find(orientation, fields, options).stream();
+			var stream = self.find(conditions, fields, options).stream();
 			var cache=[];
 			
 		    stream.on('data',function(item) {
