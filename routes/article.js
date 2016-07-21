@@ -52,7 +52,7 @@ router.route( '/article/recommend' )
       if (offset && limit) {
         articles = await RecommendArticle.pageQuery(parseInt(offset, 10), parseInt(limit, 10), conditions, null, {sort: {_id: -1}});
       } else if (sid && ort) {
-        articles = await RecommendArticle.pageQueryFeeds(ort, sid, limit || 10);
+        articles = await RecommendArticle.pageQueryFeeds(ort, sid, limit || 10, conditions);
       } else {
         articles = await RecommendArticle.find().exec()
       }
