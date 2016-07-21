@@ -39,10 +39,18 @@ router.route( '/article/recommend' )
       var limit = req.query.limit;
       var sid = req.query.sid;
       var ort = req.query.ort;
+      var category = req.query.category;
+
+      var conditions = null;
+      if (category) {
+        conditions = {
+          category: category
+        }
+      }
 
       var articles = [];
       if (offset && limit) {
-        articles = await RecommendArticle.pageQuery(parseInt(offset, 10), parseInt(limit, 10), null, null, {sort: {_id: -1}});
+        articles = await RecommendArticle.pageQuery(parseInt(offset, 10), parseInt(limit, 10), conditions, null, {sort: {_id: -1}});
       } else if (sid && ort) {
         articles = await RecommendArticle.pageQueryFeeds(ort, sid, limit || 10);
       } else {
