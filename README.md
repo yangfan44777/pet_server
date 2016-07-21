@@ -14,6 +14,15 @@ node bin/www
 
 ##API说明
 
+####有分页功能的api：
+
+    * /profile/recommend/detail
+    * /profile/fans/detail/:userid
+    * /profile/follows/detail/:userid
+    * /profile/feeds/:userid
+    * /article/recommend
+    * /article/all
+
 ####/profile/recommend/detail
 
 两种分页方式:
