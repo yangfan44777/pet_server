@@ -21,10 +21,16 @@ var findLikesByFeedIdAsync = function (feedId) {
   return Like.find({feed_id: feedId}).exec();
 }
 
-var findFeeds = async function (userid, offset, limit) {
+var findFeeds = async function (userid, orientation, sid, limit) {
 
-    var feeds = await Feed.pageQuery(offset, limit, {userid: userid});
-    var length = feeds.length;
+    var feeds;
+
+    if (orientation && sid) {
+        feeds = await Feed.pageQueryFeeds(orientation, sid, limit, {userid: userid});
+    } else {
+        /*默认加载前10条*/
+        feeds = await Feed.pageQuery(1, 10, {userid: userid}, null, {sort: {_id: -1}});
+    }
 
     feeds = feeds.map((feed) => {
         return new Promise(async (resolve, reject) => {
@@ -54,9 +60,13 @@ var findFeeds = async function (userid, offset, limit) {
 router.route( '/profile/feeds/:userid' )
   .get(async (req, res) => {
     try {
-        var offset = parseInt(req.query.offset || 1);
-        var limit = parseInt(req.query.limit || 4);
-        return res.json(await findFeeds(req.params.userid, offset, limit));
+        //var offset = parseInt(req.query.offset || 1);
+        //var limit = parseInt(req.query.limit || 4);
+        var orientation = req.query.ort;
+        var sid = req.query.sid;
+        var limit = req.query.limit || 5;
+
+        return res.json(await findFeeds(req.params.userid, orientation, sid, limit));
     } catch (err) {
         return res.send(err);
     }
@@ -88,15 +98,34 @@ router.route( '/profile/follows/detail/:userid' )
     /* limit为每页个数上限 */
     var limit = parseInt(req.query.limit) || 4;
 
+    var ort = req.query.ort;
+
+    var sid = req.query.sid;
+
     /* 包装后的结果放在里这 */
     var result = [];
 
     try {
         var follows = await Follows.findOne({userid: userid}).exec();
-        /* 获取当前页的follows */
-        var _follows = follows && follows.follows.slice((offset - 1) * limit, offset * limit);
+        
+        var _follows = follows && follows.follows;
+       
       
         if (_follows && _follows.length) {
+
+
+            if (req.query.offset && req.query.limit) {
+                _follows = _follows.slice((offset - 1) * limit, offset * limit);
+            } else if (ort && sid) {
+                /* 上下翻刷新 */
+                /* 如果sid被删除了，就会返回所有follows */
+                var index = _follows.indexOf(sid);
+                if (parseInt(ort, 10) === 1) {
+                    _follows = _follows.slice(0, index);
+                } else {
+                    _follows = _follows.slice(index + 1, index + 1 + limit );
+                }
+            }
 
             _follows = _follows.map((follow) => {
                 return new Promise(async (resolve, reject) => {
@@ -142,15 +171,34 @@ router.route( '/profile/fans/detail/:userid' )
     /* limit为每页个数上限 */
     var limit = parseInt(req.query.limit) || 4;
 
+    var ort = req.query.ort;
+  
+    var sid = req.query.sid;
+
     try {
 
         /* userid下所有followed */
         var followed = await Followed.findOne({userid: userid}).exec();
 
+        var _followed = followed && followed.followed;
+       
+
         /* 获取当前页的followed */
-        var _followed = followed && followed.followed.slice((offset - 1) * limit, offset * limit);
+        //var _followed = followed && followed.followed.slice((offset - 1) * limit, offset * limit);
 
         if (_followed && _followed.length) {
+
+            if (req.query.offset && req.query.limit) {
+                _followed = _followed.slice((offset - 1) * limit, offset * limit);
+            } else if (ort && sid) {
+                var index = _followed.indexOf(sid);
+                if (parseInt(ort, 10) === 1) {
+                    _followed = _followed.slice(0, index);
+                } else {
+                    _followed = _followed.slice(index + 1, index + 1 + limit);
+                }
+            }
+
             _followed = _followed.map((follow) => {
                 return new Promise(async (resolve, reject) => {
                     try {
@@ -192,11 +240,23 @@ router.route( '/profile/recommend/detail' )
     var offset = parseInt(req.query.offset) || 1;
 
     /* limit为每页个数上限 */
-    var limit = parseInt(req.query.limit) || 20;
+    var limit = parseInt(req.query.limit) || 10;
+
+    var ort = req.query.ort;
+  
+    var sid = req.query.sid;
 
     try {
     
-        var users = await User.pageQuery(offset, limit, null, null, {sort: {_id: -1}});
+        var users;
+
+        if (req.query.offset && req.query.limit) {
+            users = await User.pageQuery(offset, limit, null, null, {sort: {_id: -1}});
+        } else if (ort && sid) {
+            users = await User.pageQueryFeeds(ort, sid, limit);
+        } else {
+            return res.end();
+        }
 
         users = users.map((user) => {
 
@@ -217,6 +277,7 @@ router.route( '/profile/recommend/detail' )
                     });
 
                     resolve({
+                        _id: user._id,
                         userid : user.openid,
                         nickname : user.nickname,
                         headimgurl : user.headimgurl,
