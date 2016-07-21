@@ -1,4 +1,6 @@
 var mongoose = require( 'mongoose' )
+var ModelExtend = require('./modelExtend.js');
+
 const Schema = mongoose.Schema
 
 var articleSchema = new Schema( {
@@ -13,4 +15,8 @@ var articleSchema = new Schema( {
   has_recommend : Number // 0 未推荐, 1 推荐
 } )
 
-module.exports = mongoose.model( 'Article', articleSchema )
+var Article = mongoose.model( 'Article', articleSchema );
+
+ModelExtend.doApply(Article);
+
+module.exports = Article;
