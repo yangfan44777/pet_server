@@ -19,16 +19,37 @@
     <div ng-click="gotoDetail(l)" ng-bind="l.desc"></div>
     <button ng-class="{ true : 'btn-default', false : 'btn-success' }[!!l.has_recommend]" class="btn btn-sm btn-block" ng-click="recommendThis(l)">推荐</button>
   </div>
+  <div ng-click="hideCate()" ng-show="showCate" id="cateSelect">
+    <div class="cateInner">
+      <div ng-click="confirmRecommend( 1, $event )" class="cate">趣闻</div>
+      <div ng-click="confirmRecommend( 2, $event )" class="cate">常识</div>
+      <div ng-click="confirmRecommend( 3, $event )" class="cate">养护</div>
+      <div ng-click="confirmRecommend( 4, $event )" class="cate">汪星人</div>
+      <div ng-click="confirmRecommend( 5, $event )" class="cate">喵星人</div>
+      <div ng-click="confirmRecommend( 6, $event )" class="cate">小宠</div>
+    </div>
+  </div>
 </div>
+
 
   <script src="//cdn.bootcss.com/angular.js/1.5.7/angular.min.js"></script>
   <script>
     angular.module( 'app', [] )
       .controller( 'articleList', [ '$scope', '$http', function( $scope, $http ) {
 
+        $scope.showCate = false
+        $scope.selectItem = null
 
-        $scope.recommendThis = function( item ) {
-          if( item.has_recommend ) return false
+        $scope.hideCate = function() {
+          $scope.showCate = false
+          $scope.selectItem = null
+        }
+
+        $scope.confirmRecommend = function( cate, event ) {
+
+          if( ! $scope.selectItem ) return false
+          event.stopPropagation()
+          var item = $scope.selectItem
           $http( {
             method : 'post',
             url : '/api/article/recommend',
@@ -40,14 +61,20 @@
                 "cover" : item.cover,
                 "content" : item.content,
                 "tags" : [],
-                "category" : "1"
+                "category" : '' + cate
             }
           } ).success( function() {
             item.has_recommend = 1
-            console.log( 111 )
+            $scope.showCate = false
+            $scope.selectItem = null
           } )
         }
 
+        $scope.recommendThis = function( item ) {
+          if( item.has_recommend ) return false
+          $scope.showCate = true
+          $scope.selectItem = item
+        }
 
         $scope.gotoDetail = function( item ) {
           localStorage.setItem( 'scroll_top', document.body.scrollTop )

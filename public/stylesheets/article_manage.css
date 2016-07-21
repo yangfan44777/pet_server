@@ -1,0 +1,50 @@
+body{
+  margin:0;
+  padding:0;
+  font-size:14px;
+  background: #e4e4e4;
+}
+.list-item{
+  margin-bottom:10px;
+  background: #fff;
+  padding:10px;
+}
+.article-link{
+  margin: 0 0 10px 0;
+  text-align: right;
+}
+.btn-default{
+  color:#999;
+}
+button.btn,
+button.btn:active,
+button.btn:focus{
+  outline: 0 none;
+}
+#cateSelect{
+  position: fixed;
+  bottom:0;
+  right:0;
+  top:0;
+  left:0;
+  background:rgba(0,0,0,0.7)
+}
+.cateInner{
+  position: absolute;
+  width: 80%;
+  height: 200px;
+  margin: 0 auto;
+  margin-top: -100px;
+  background: #fff;
+  top: 50%;
+  left: 50%;
+  margin-left: -40%;
+  border-radius: 5px;
+}
+.cateInner .cate{
+  height: 33px;
+  text-align: center;
+  margin-bottom: 0px;
+  border-bottom: 1px solid #e2e2e2;
+  line-height: 33px;
+}
