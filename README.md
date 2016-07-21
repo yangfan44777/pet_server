@@ -26,9 +26,7 @@ node bin/www
     * /article/recommend
     * /article/all
 
-####/profile/recommend/detail
-
-两种分页方式:
+####两种分页方式:
 
 1. `API` + ?ort={0|1}&sid={string}&limit={number}
 
