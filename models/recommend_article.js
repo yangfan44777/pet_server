@@ -1,4 +1,6 @@
 var mongoose = require( 'mongoose' )
+var ModelExtend = require('./modelExtend.js');
+
 const Schema = mongoose.Schema
 
 var recommendArticleSchema = new Schema( {
@@ -12,4 +14,8 @@ var recommendArticleSchema = new Schema( {
   category : String
 } )
 
-module.exports = mongoose.model( 'RecommendArticle', recommendArticleSchema )
+var RecommendArticle = mongoose.model( 'RecommendArticle', recommendArticleSchema );
+
+ModelExtend.doApply(RecommendArticle);
+
+module.exports = RecommendArticle;
