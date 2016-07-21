@@ -9,7 +9,8 @@ const commentSchema = new Schema( {
   commentee : {
     commentee_id : String,
     commentee_nick : String
-  }
+  },
+  isdeleted : Number
 } )
 
 module.exports = mongoose.model( 'Comment', commentSchema )

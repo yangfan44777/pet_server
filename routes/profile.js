@@ -39,7 +39,7 @@ var findFeeds = async function (userid, orientation, sid, limit) {
 
                 var comments = info[0];
                 var likes = info[1];
-
+                comments = _.filter(comments, function(comment){ return comment.isdeleted !== 1 })
                 Object.assign(feed, {
                     comments: comments,
                     comments_count: comments.length,
@@ -71,7 +71,7 @@ router.route( '/profile/feeds/:userid' )
         return res.send(err);
     }
 })
-  
+
 /* 获取userid下的所有follows */
 router.route( '/profile/follows/:userid' )
   .get( ( req, res ) => {
@@ -110,7 +110,7 @@ router.route( '/profile/follows/detail/:userid' )
         
         var _follows = follows && follows.follows;
        
-      
+    
         if (_follows && _follows.length) {
 
 
@@ -133,11 +133,11 @@ router.route( '/profile/follows/detail/:userid' )
                         var user = await User.findOne({openid : follow}).exec();
                         var feeds = await Feed.pageQuery(1, 3,  {userid: user.openid}, null, {sort:{_id: -1}});
                         var feedsResult = [];
-                    
+
                         feeds.forEach((feed) => {
                             feedsResult.push({
                                 image: feed.image
-                            }); 
+                            });
                         });
                         resolve({
                             userid: user.openid,
@@ -205,11 +205,11 @@ router.route( '/profile/fans/detail/:userid' )
                         var user = await User.findOne({openid : follow}).exec();
                         var feeds = await Feed.pageQuery(1, 3, {userid: user.openid}, null, {sort:{_id: -1}});
                         var feedsResult = [];
-                        
+
                         feeds.forEach((feed) => {
                             feedsResult.push({
                                 image: feed.image
-                            }); 
+                            });
                         });
                         resolve({
                             userid: user.openid,
@@ -247,7 +247,7 @@ router.route( '/profile/recommend/detail' )
     var sid = req.query.sid;
 
     try {
-    
+
         var users;
 
         if (req.query.offset && req.query.limit) {
@@ -258,12 +258,13 @@ router.route( '/profile/recommend/detail' )
             return res.end();
         }
 
+
         users = users.map((user) => {
 
             return new Promise(async (resolve, reject) => {
-                
+
                 const userid = user.openid;
-                
+
                 try {
                     //var userDetail = User.findOne({openid: userid}).exec();
 
