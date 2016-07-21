@@ -9,6 +9,9 @@ mongod --config /usr/local/etc/mongod.conf
 
 #### 启动 node 服务
 ``` bash
+npm install
+gulp
+cd output
 node bin/www
 ```
 
