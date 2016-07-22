@@ -47,3 +47,7 @@ node bin/www
     offset: 传统刷新方式的`第几页`
     
     limit: 传统刷新方式`每页出多少条`
+
+##身份验证
+
+ ![image](https://github.com/yangfan44777/pet_server/raw/master/aut.png)
