@@ -47,31 +47,26 @@ var pageQueryFeeds = function (orientation, startId, limit, conditions, fields, 
 	
 	orientation = parseInt(orientation, 10);
 
+	options['sort'] = {_id: -1};
+	options['limit'] = limit;
+
 	var self = this;
-
-	if (orientation === 1) {
-		options['sort'] = {_id: -1};
-	} else {
-		options['sort'] = {_id: 1};
-
-		if (limit) {
-			options['limit'] = limit;
-		}
-	}
-
+	
 	return new Promise(function (resolve, reject) {
 
 		try {
-			var stream = self.find(conditions, fields, options).stream();
 			var cache=[];
-			
+			var query = self.find(conditions, fields, options).where('_id');
+			var stream;
+
+			if (orientation === 1) {
+				stream = query.gt(startId).stream();
+			} else {
+				stream = query.lt(startId).stream();
+			}
+
 		    stream.on('data',function(item) {
-		    	if ((orientation === 1 && item._id > startId) || (orientation === 0 && item._id < startId)) {
-		    		cache.push(item);
-		    	} else {
-		    		stream.destroy();
-		    		resolve(cache);
-		    	}
+		    	cache.push(item);
 		    }).on('end', function() {
 		    	resolve(cache);
 		    	console.log('query ended'); 
