@@ -255,7 +255,7 @@ router.route( '/profile/recommend/detail' )
         var users;
 
         if (req.query.offset && req.query.limit) {
-            users = await User.pageQuery(offset, limit, null, null, {sort: {_id: -1}});
+            users = await User.pageQuery(offset, limit, null, null, {sort: {follower: -1}});
         } else if (ort && sid) {
             users = await User.pageQueryFeeds(ort, sid, limit);
         } else {
