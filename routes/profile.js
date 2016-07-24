@@ -21,15 +21,18 @@ var findLikesByFeedIdAsync = function (feedId) {
   return Like.find({feed_id: feedId}).exec();
 }
 
-var findFeeds = async function (userid, orientation, sid, limit) {
+var findFeeds = async function (userid, orientation, sid, limit, offset) {
 
     var feeds;
+
+    limit = parseInt( limit ) || 10
+    offset = parseInt( offset ) || 1
 
     if (orientation && sid) {
         feeds = await Feed.pageQueryFeeds(orientation, sid, limit, {userid: userid});
     } else {
         /*默认加载前10条*/
-        feeds = await Feed.pageQuery(1, 10, {userid: userid}, null, {sort: {_id: -1}});
+        feeds = await Feed.pageQuery(offset, limit, {userid: userid}, null, {sort: {_id: -1}});
     }
 
     feeds = feeds.map((feed) => {
@@ -65,8 +68,9 @@ router.route( '/profile/feeds/:userid' )
         var orientation = req.query.ort;
         var sid = req.query.sid;
         var limit = req.query.limit || 5;
+        var offset = req.query.offset || 1
 
-        return res.json(await findFeeds(req.params.userid, orientation, sid, limit));
+        return res.json(await findFeeds(req.params.userid, orientation, sid, limit, offset));
     } catch (err) {
         return res.send(err);
     }
@@ -107,10 +111,10 @@ router.route( '/profile/follows/detail/:userid' )
 
     try {
         var follows = await Follows.findOne({userid: userid}).exec();
-        
+
         var _follows = follows && follows.follows;
-       
-    
+
+
         if (_follows && _follows.length) {
 
 
@@ -172,7 +176,7 @@ router.route( '/profile/fans/detail/:userid' )
     var limit = parseInt(req.query.limit) || 4;
 
     var ort = req.query.ort;
-  
+
     var sid = req.query.sid;
 
     try {
@@ -181,7 +185,7 @@ router.route( '/profile/fans/detail/:userid' )
         var followed = await Followed.findOne({userid: userid}).exec();
 
         var _followed = followed && followed.followed;
-       
+
 
         /* 获取当前页的followed */
         //var _followed = followed && followed.followed.slice((offset - 1) * limit, offset * limit);
@@ -243,7 +247,7 @@ router.route( '/profile/recommend/detail' )
     var limit = parseInt(req.query.limit) || 10;
 
     var ort = req.query.ort;
-  
+
     var sid = req.query.sid;
 
     try {

@@ -71,9 +71,24 @@
         }
 
         $scope.recommendThis = function( item ) {
-          if( item.has_recommend ) return false
+          if( item.has_recommend ) {
+            $scope.cancelRecommend( item )
+            return false
+          }
           $scope.showCate = true
           $scope.selectItem = item
+        }
+
+        $scope.cancelRecommend = function( item ) {
+          $http( {
+            method : 'post',
+            url : '/api/article/recommend/cancel',
+            data : {
+                "id" : item.id
+            }
+          } ).success( function() {
+            item.has_recommend = 0    
+          } )
         }
 
         $scope.gotoDetail = function( item ) {
@@ -81,7 +96,7 @@
           window.location.href = item.url
         }
 
-        $http.get( '/api/article/all' )
+        $http.get( '/api/article/all?ort=0&sid=&limit=10' )
           .success(function(response) {
             var result = []
             response.forEach( function( item, index, arr ) {

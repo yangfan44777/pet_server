@@ -23,11 +23,23 @@ router.route( '/article/all' )
         articles = await Article.find().sort( { _id : -1 } ).exec();
       }
 
-      
+
       //var articles = await Article.find().sort( { _id : -1 } ).exec()
       res.json( articles )
     } catch( e ) {
       res.send( e )
+    }
+  } )
+
+router.route( '/article/recommend/cancel' )
+  .post( async( req, res ) => {
+    try {
+      var article = await Article.findOne( { id : req.body.id } ).exec()
+      article.has_recommend = 0
+      await article.save()
+      res.json( { message : 'article cancel recommend' } )
+    } catch( err ) {
+      res.send( err )
     }
   } )
 

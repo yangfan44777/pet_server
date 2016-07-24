@@ -88,7 +88,7 @@ router.route( '/user/info/:openid/:access_token' )
           return res.send( err )
         }
         if( user ) {
-          for( prop in req.body ){
+          for( let prop in req.body ){
             user.headimgurl = req.body.headimgurl
             user.nickname = req.body.nickname
             user.province = req.body.province
