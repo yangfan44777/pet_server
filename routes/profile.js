@@ -255,9 +255,13 @@ router.route( '/profile/extraInfo/:userid' )
             var user = await User.findOne({openid : userId}).exec();
 
             if (req.body && req.body.nickname) {
-                await user.validNickname(req.body.nickname);
+                try {
+                    await user.validNickname(req.body.nickname);
+                } catch (err) {
+                    return res.json({err: 1});
+                }
             }
-            
+
             user.set({extraInfo:req.body});
             await user.save();
             res.json( { message : 'extra info saved' } );
