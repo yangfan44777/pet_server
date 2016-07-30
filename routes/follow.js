@@ -3,7 +3,9 @@ var Follows = require( '../models/follows' )
 var Followed = require( '../models/followed' )
 var Feed = require( '../models/feed' )
 var express = require( 'express' )
+var Promise = require('bluebird');
 var router = express.Router()
+
 
 // router.route( '/follow' )
 //   .post( ( req, res ) => {
@@ -16,6 +18,80 @@ var router = express.Router()
 //       res.send( { message : 'Follows added.' } )
 //     } )
   // } )
+
+router.route( '/unfollow/:follower_id/:followee_id' )
+  .post(async (req, res) => {
+    try { 
+        var followerId = req.params.follower_id;
+        var followeeId = req.params.followee_id;
+
+        var task = [];
+        /* follower的关注列表里 去掉 followee */
+        task.push(new Promise(async (resolve, reject) => {
+            try {
+                
+                var follows = await Follows.findOne({userid: followerId}).exec();
+                
+                var followsList = follows.follows;
+                
+                var idx = followsList.indexOf(followeeId);
+                
+                if (idx > -1) {
+                    followsList.splice(idx, 1);
+                    follows.set({follows: followsList});
+                    await follows.save();
+                }
+                
+                resolve();
+            } catch (err) {
+                
+                reject(err);
+            }
+        }));
+
+        /* followee 的粉丝列表里去掉 follower */
+        task.push(new Promise(async (resolve, reject) => {
+            try {
+                var followed = await Followed.findOne({userid: followeeId}).exec();
+                var followedList = followed.followed;
+                var idx = followedList.indexOf(followerId);
+                if (idx > -1) {
+                    followedList.splice(idx, 1);
+                    followed.set({followed: followedList});
+                    await followed.save();
+                }
+                resolve();
+            } catch (err) {
+                reject();
+            }
+        }));
+
+        /* follower 的news列表里去掉所有属于followee的feed_id */
+        task.push(new Promise(async (resolve, reject) => {
+            try {
+                var user = await User.findOne({openid: followerId}).exec();
+                var news = user.news;
+                var feeds = await Feed.find({userid: followeeId}, {_id: 1}).exec();
+                feeds.forEach((feed) => {
+                    var idx = news.indexOf(feed._id);
+                    if (idx > -1) {
+                        news.splice(idx, 1);
+                    }
+                });
+                user.set({news: news});
+                await user.save();
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        }));
+
+        await Promise.all(task);
+        res.send("success");
+    } catch (err) {
+        res.send(err.toString());
+    }
+});
 
 router.route( '/follow/:follower_id/:followee_id' )
   .post( ( req, res ) => {
