@@ -1,6 +1,6 @@
 PetsServer
 ==========
-
+   
 #### 启动 mongodb
 
 ``` bash
@@ -44,7 +44,7 @@ node bin/www
 
     字段说明：
     
-    offset: 传统刷新方式的`第几页`
+    offset: 传统刷新方式的`第几页` 
     
     limit: 传统刷新方式`每页出多少条`
 
