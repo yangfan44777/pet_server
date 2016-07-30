@@ -235,6 +235,36 @@ router.route( '/profile/fans/detail/:userid' )
     }
 });
 
+router.route( '/profile/extraInfo/:userid' )
+    .get(async (req, res)=> {
+
+        try {
+            var userId = req.params.userid;
+
+            var user = await User.findOne({openid : userId}).exec();
+
+            res.json(user.extraInfo);
+        } catch (err) {
+            res.send(err);
+        }
+    })
+    .post(async (req, res) => {
+        try {
+
+            var userId = req.params.userid;
+            var user = await User.findOne({openid : userId}).exec();
+
+            if (req.body && req.body.nickname) {
+                await user.validNickname(req.body.nickname);
+            }
+            
+            user.set({extraInfo:req.body});
+            await user.save();
+            res.json( { message : 'extra info saved' } );
+        } catch(err) {
+            res.send(err);
+        }
+    });
 
 
 router.route( '/profile/recommend/detail' )
@@ -303,62 +333,4 @@ router.route( '/profile/recommend/detail' )
     }
 });
 
-/*
-
-    User.find().sort( { _id : -1 } ).limit( 50 ).exec( ( err, users ) => {
-      if( err ) {
-        return res.send( err )
-      }
-      const result = []
-      let c = 0
-      if( users ) {
-
-
-        users.forEach( ( user, index ) => {
-
-          const userid = user.openid
-
-          User.findOne( { openid : userid } ).exec( ( err, user ) => {
-            if( err ) {
-              return res.send( err )
-            }
-
-            const feedsResult = []
-            Feed.find( { userid : user.openid } ).limit(3).sort( { _id : -1 } ).exec( ( err, feeds ) => {
-              // console.log( feeds )
-              feeds.forEach( ( feed ) => {
-                feedsResult.push( {
-                  image : feed.image
-                } )
-              } )
-
-              result.push( {
-                userid : user.openid,
-                nickname : user.nickname,
-                headimgurl : user.headimgurl,
-                feeds : feedsResult,
-                fan_c : user.follower
-              } )
-              // console.log( result )
-              //res.json( user )
-              if( c === users.length - 1 ) {
-                var s_result = _.sortBy( result, ( r ) => {
-                  return -r.fan_c
-                } )
-
-                res.json( s_result )
-              }
-              c++
-
-            } )
-          } )
-        } )
-      } else {
-        res.json( result )
-      }
-    } )
-
-  } )
-*/
-
-  module.exports = router
+module.exports = router
