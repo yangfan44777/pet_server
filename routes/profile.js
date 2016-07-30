@@ -253,13 +253,21 @@ router.route( '/profile/extraInfo/:userid' )
 
             var userId = req.params.userid;
             var user = await User.findOne({openid : userId}).exec();
+            var nickname = req.body.nickname;
+            var pic = req.body.pic;
 
-            if (req.body && req.body.nickname) {
+            if (req.body && nickname) {
                 try {
-                    await user.validNickname(req.body.nickname);
+                    await user.validNickname(nickname);
+                    /* 同步所有feed中的nick, 忽略返回值*/
+                    Feed.update({userid: userId}, {nick: nickname}).exec();
                 } catch (err) {
                     return res.json({err: 1});
                 }
+            }
+            if (req.body && pic) {
+                /* 同步所有feed中的avator, 忽略返回值*/
+                Feed.update({userid: userId}, {avator: pic}).exec();
             }
 
             user.set({extraInfo:req.body});
@@ -272,6 +280,7 @@ router.route( '/profile/extraInfo/:userid' )
               headimgurl : req.body.pic ? req.body.pic : user.headimgurl
             } )
             await user.save();
+
             res.json( { message : 'extra info saved' } );
         } catch(err) {
             res.send(err);
