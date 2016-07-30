@@ -77,6 +77,44 @@ router.route( '/notify/read/:receiver/:notify_id' )
   } )
 
 
+
+router.route( '/notify/readall/:receiver' )
+  .put( ( req, res ) => {
+    Notify.findOne( { receiver : req.params.receiver }, ( err, notifies ) => {
+      if( err ){
+        return res.send( err )
+      }
+      if( notifies ) {
+        for( var i = 0, len = notifies.notifies.length; i < len; i++ ) {
+          // console.log( notifies.notifies[ i ].id === req.params.notify_id )
+          // if( notifies.notifies[ i ].id === req.params.notify_id ) {
+            notifies.notifies[ i ].readed = 1// = Object.assign( notifies.notifies[ i ], { readed : 1 } )
+            // break
+          // }
+        }
+      }
+      // notifies.notifies = notifies.notifies.slice()
+      const result = notifies.notifies.slice()
+      notifies.notifies = []
+      result.forEach( function( item ) {
+        notifies.notifies.push( item )
+      } )
+
+      // for( prop in req.body ){
+      //   feed[ props ] = req.body[ props ]
+      // }
+      // console.log( notifies.notifies )
+      notifies.save( ( err ) => {
+        if( err ){
+          return res.send( err )
+        }
+        res.json( { message : 'Notifies all readed.' } )
+      } )
+
+    } )
+  } )
+
+
 router.route( '/notify/unread/count/:receiver' )
   .get( ( req, res ) => {
     Notify.findOne( { receiver : req.params.receiver } ).exec( ( err, notifies ) => {
