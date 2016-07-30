@@ -23,4 +23,14 @@ router.route( '/like/:feed_id' )
     } )
   } )
 
+router.route('/like/cancel/:feed_id')
+  .get(async (req, res) => {
+    try {
+      var feedId = req.params.feed_id;
+      var like = await Like.remove({feed_id: feedId, liker_id: req.query.liker_id}).exec();
+      res.json(like);
+    } catch (err) {
+      res.send(err);
+    }
+  });
 module.exports = router
