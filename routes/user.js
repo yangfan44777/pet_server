@@ -38,12 +38,36 @@ router.route( '/user/info/:openid/:access_token' )
     request( {
       method : 'GET',
       uri : 'https://api.weixin.qq.com/sns/userinfo?access_token=' + access_token + '&openid=' + openid
-    }, ( error, response, body ) => {
+    }, async ( error, response, body ) => {
       // console.log( 'auth', access_token, openid, body )
       if( error ) {
         return res.send( error )
       }
-      res.send( body )
+      var extraInfo = await User.findOne( { openid : openid } ).exec()
+      extraInfo = extraInfo.extraInfo || {}
+
+      var result = Object.assign( JSON.parse( body ), { extraInfo : extraInfo } )
+
+      // 使用自定义昵称
+      result.nickname = extraInfo.nickname || result.nickname
+
+      // 使用自定义性别
+      result.sex = extraInfo.sex || result.sex
+
+      // 使用自定义位置
+      var address = extraInfo.location.split( ', ' )
+      address && address[ 0 ] && ( result.province = address[ 0 ] )
+      address && address[ 1 ] && ( result.city = address[ 1 ] )
+      address && address[ 2 ] && ( result.city = result.city + ', ' + address[ 2 ] )
+
+      // 使用自定义头像
+      extraInfo.pic && ( result.headimgurl = extraInfo.pic )
+
+      result.signature = extraInfo.signature
+
+
+      // console.log( result )
+      res.send( result )
     } )
 
   } )

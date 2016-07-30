@@ -263,6 +263,14 @@ router.route( '/profile/extraInfo/:userid' )
             }
 
             user.set({extraInfo:req.body});
+            var location = req.body.location.split( ', ' )
+            user.set( {
+              nickname : req.body.nickname,
+              sex : req.body.sex,
+              province : location && location[ 0 ] ? location[ 0 ] : user.province,
+              city : location && location[ 1 ] ? ( location[ 2 ] ? location[ 1 ] + ', ' + location[ 2 ] : location[ 1 ] ) : user.city,
+              headimgurl : req.body.pic ? req.body.pic : user.headimgurl
+            } )
             await user.save();
             res.json( { message : 'extra info saved' } );
         } catch(err) {
