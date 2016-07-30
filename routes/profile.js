@@ -259,7 +259,7 @@ router.route( '/profile/extraInfo/:userid' )
                 try {
                     await user.validNickname(nickname);
                     /* 同步所有feed中的nick, 忽略返回的值*/
-                    Feed.update({userid: userId}, {nick, nickname}).exec();
+                    Feed.update({userid: userId}, {nick: nickname}).exec();
                 } catch (err) {
                     return res.json({err: 1});
                 }
