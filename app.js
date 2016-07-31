@@ -12,6 +12,7 @@ var follow = require( './routes/follow' )
 var notify = require( './routes/notify' )
 var topic = require( './routes/topic' )
 var article = require( './routes/article' )
+var feedback = require( './routes/feedback' )
 var checkApi = require('./routes/checkApi')
 var FileStreamRotator = require('file-stream-rotator');
 var logger = require('morgan');
@@ -64,6 +65,7 @@ app.use( '/api', follow )
 app.use( '/api', notify )
 app.use( '/api', topic )
 app.use( '/api', article )
+app.use( '/api', feedback )
 
 
 module.exports = app;
