@@ -11,6 +11,7 @@ const userSchema = new Schema( {
   city : String,
   province : String,
   headimgurl : String,
+  sex : Number,
 
   follower : Number,
   follow : Number,
@@ -32,13 +33,13 @@ ModelExtend.doApply(User);
 User.prototype.validNickname = function (nickname) {
   var self = this;
   return new Promise( async (resolve, reject) => {
-    var user = await User.findOne({'extraInfo.nickname':nickname}).exec();
-    if (!user || self.extraInfo.nickname === nickname) {
-      resolve(true);
-    } else {
+    var user = await User.findOne({'nickname':nickname}).exec();
+    if (user && user.openid !== self.openid) {
       reject('昵称已被使用');
+    } else {
+      resolve(true);
     }
-  });  
+  });
 }
 
 module.exports = User;

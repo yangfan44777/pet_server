@@ -55,10 +55,12 @@ router.route( '/user/info/:openid/:access_token' )
       result.sex = extraInfo.sex || result.sex
 
       // 使用自定义位置
-      var address = extraInfo.location.split( ', ' )
-      address && address[ 0 ] && ( result.province = address[ 0 ] )
-      address && address[ 1 ] && ( result.city = address[ 1 ] )
-      address && address[ 2 ] && ( result.city = result.city + ', ' + address[ 2 ] )
+      if( extraInfo.location ) {
+        var address = extraInfo.location.split( ', ' )
+        address && address[ 0 ] && ( result.province = address[ 0 ] )
+        address && address[ 1 ] && ( result.city = address[ 1 ] )
+      }
+      // address && address[ 2 ] && ( result.city = result.city + ', ' + address[ 2 ] )
 
       // 使用自定义头像
       extraInfo.pic && ( result.headimgurl = extraInfo.pic )
@@ -118,6 +120,7 @@ router.route( '/user/info/:openid/:access_token' )
             user.province = req.body.province
             user.city = req.body.city
             user.device_token = req.body.device_token || ''
+            user.sex = req.body.sex
             // user[ prop ] = req.body[ prop ]
           }
           user.save( ( err ) => {
