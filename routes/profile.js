@@ -260,14 +260,15 @@ router.route( '/profile/extraInfo/:userid' )
                 try {
                     await user.validNickname(nickname);
                     /* 同步所有feed中的nick, 忽略返回值*/
-                    Feed.update({userid: userId}, {nick: nickname}).exec();
+                    Feed.update({userid: userId}, {nick: nickname}, { multi: true }).exec();
                 } catch (err) {
+                    // 昵称重复
                     return res.json({err: 1});
                 }
             }
             if (req.body && pic) {
                 /* 同步所有feed中的avator, 忽略返回值*/
-                Feed.update({userid: userId}, {avator: pic}).exec();
+                Feed.update({userid: userId}, {avator: pic}, { multi: true }).exec();
             }
 
             user.set({extraInfo:req.body});
