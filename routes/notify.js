@@ -28,7 +28,11 @@ router.route( '/notify/all/:receiver' )
       if( err ) {
         return res.send( err )
       }
-      var result = []
+      var result = [];
+      
+
+       _follows = _follows.slice((offset - 1) * limit, offset * limit);
+
       if( notifies ) {
         notifies.notifies.forEach( ( notify ) => {
           result.unshift( notify )
@@ -36,6 +40,9 @@ router.route( '/notify/all/:receiver' )
       } else {
         result = []
       }
+      var limit = req.query.limit || 5;
+      var offset = req.query.offset || 1
+      result = result.slice((offset - 1) * limit, offset * limit);
       res.json( result )
     } )
   } )
