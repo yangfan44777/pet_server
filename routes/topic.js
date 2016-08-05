@@ -4,6 +4,9 @@ var Topic = require( '../models/topic' )
 var express = require( 'express' )
 var router = express.Router()
 
+var logger = require("../logHelper").helper;  
+var DurationLog = require("../util.js").DurationLog;  
+
 router.route( '/topic' )
   // 获取最新4个 topic
   /*.get( ( req, res ) => {
@@ -15,10 +18,13 @@ router.route( '/topic' )
     } )
   } )*/
   .get(async (req, res) => {
+   
     try {
+      var dur = DurationLog.start(req);
       var topics = await Topic.pageQuery(1, 4, null, null, {sort:{_id: -1}});
       res.json(topics);
-    } catch (err) {
+      dur.end();
+         } catch (err) {
       res.send(err);
     }
   })

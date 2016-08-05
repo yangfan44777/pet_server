@@ -1,4 +1,5 @@
 var Like = require( '../models/like' )
+var Feed = require( '../models/feed' )
 var express = require( 'express' )
 var router = express.Router()
 
@@ -19,6 +20,15 @@ router.route( '/like/:feed_id' )
         return res.send( err )
       }
       // console.log('111111111111111', like)
+      /* 更新feed的likes */
+      Feed.findById(req.params.feed_id).exec((err, feed) => {
+        if (err) {
+          return;
+        } else {
+          feed.likes.push(like);
+          feed.save();
+        }
+      });
       res.send( like )
     } )
   } )

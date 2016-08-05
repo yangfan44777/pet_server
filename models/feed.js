@@ -10,9 +10,9 @@ const feedSchema = new Schema( {
   date : Date,
   image : String,
   content : String,
-  likes : [  ],
+  likes : [ { type: Schema.Types.ObjectId, ref: 'Like' } ],
   like_count : Number,
-  comments : [  ],
+  comments : [ { type: Schema.Types.ObjectId, ref: 'Comment' } ],
   comment_count : Number,
   topic : String,
   isdeleted : Number

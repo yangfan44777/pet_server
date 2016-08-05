@@ -9,6 +9,7 @@ var router = express.Router()
 var _ = require( 'underscore' )
 
 
+
 router.route( '/feeds/delete/:feed_id' )
   .put( ( req, res ) => {
     Feed.findOne( { _id : req.params.feed_id }, ( err, feed ) => {
@@ -28,9 +29,71 @@ router.route( '/feeds/delete/:feed_id' )
 
     } )
   } )
+/*  
+ * 通过id，筛选出比id更早的元素或更晚的元素
+ * @param arr {Array} 被计算数组
+ * @param id {String} 查找的id  
+ * @param type {Number} 上翻还是下翻，1上，2下
+ */
+var getListById = function (arr, id, type) {
+
+  var index = arr.indexOf(id);
+    /* 存在该id */
+  if (index > -1) {
+                                  /* +15是为了更新加载过的15条 */
+    return type == 1 ? arr.slice(0, index + 15) : arr.slice(index + 1, index + 7);
+
+  } else {
+
+    var len = arr.length;
+    var i = 0;
+    for (; i < len; i++) {
+      if (arr[i] < id) {
+        break;
+      }
+    }
+    return type == 1 ? arr.slice(0, i) : arr.slice(i, i + 7);
+  }
+};
+
+
+router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
+  .get(async (req, res) => {
+    try {
+      var params = req.params;
+      /* 当前用户id */
+      var userid = params.userid;
+      /* 刷新方向 */
+      var ort = params.type;
+      /* sid */
+      var sid = ort == '1' ? params.latest : params.earliest;
+
+      var user = await User.findOne({openid: userid}).exec();
+      /* 最终返回的数组 */
+      var feeds = [];
+      
+      var news = getListById(user.news, sid, parseInt(ort, 10));
+
+      var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({
+        path: 'comments',
+        match: {isdeleted: {$ne:1}}
+      }).where('_id').in(news).exec();
+
+      /* 填充feeds的like_count和comment_count ,!!建议放在前端做*/
+      feeds.forEach((feed) => {
+        feed.like_count = feed.likes && feed.likes.length || 0;
+        feed.comment_count = feed.comments && feed.comments.length || 0;
+      });
+
+      res.json(feeds);
+
+    } catch (e) {
+      res.json({err:1, msg: e.toString()});
+    }
+  });
 
 // http://192.168.1.102:8000/api/feeds/following/oWSLis-9ebxj3ff_Tgy8e7pSLsMo/0/0/1
-router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
+/*router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
   .get( ( req, res ) => {
 
     User.findOne( { openid : req.params.userid }, ( err, user ) => {
@@ -122,7 +185,7 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
 
     } )
 
-  } )
+  } )*/
 
 router.route( '/feeds' )
   // 提交一个 feed
@@ -206,7 +269,41 @@ router.route( '/feeds' )
 
 
 router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
-  .get( ( req, res ) => {
+  .get( async ( req, res ) => {
+
+    try {
+      var params = req.params;
+      /* 当前用户id */
+      var userid = params.userid;
+      /* 刷新方向 */
+      var ort = params.type;
+      /* sid */
+      var sid = ort == '1' ? params.latest : params.earliest;
+
+      var topic = await Topic.findOne({title: params.topic.replace( /#/g, '' )}).exec();
+      /* 最终返回的数组 */
+      var feeds = [];
+      
+      var topicFeeds = getListById(topic.feeds, sid, parseInt(ort, 10));
+
+      var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({
+        path: 'comments',
+        match: {isdeleted: {$ne:1}}
+      }).where('_id').in(topicFeeds).exec();
+
+      /* 填充feeds的like_count和comment_count ,!!建议放在前端做*/
+      feeds.forEach((feed) => {
+        feed.like_count = feed.likes && feed.likes.length || 0;
+        feed.comment_count = feed.comments && feed.comments.length || 0;
+      });
+
+      res.json(feeds);
+
+    } catch (e) {
+      res.json({err:1, msg: e.toString()});
+    }
+
+/*
 
     Topic.findOne( { title : req.params.topic.replace( /#/g, '' ) }, ( err, topic ) => {
 
@@ -297,7 +394,7 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
         return res.json( feeds )
       }
 
-    } )
+    } )*/
 
   } )
 

@@ -1,0 +1,16 @@
+{   
+    "customDefaultAtt" :{  
+        "type": "dateFile",  
+        "absolute": true,  
+        "alwaysIncludePattern": true  
+    },  
+    "appenders": [  
+            {"type": "console", "category": "console"},  
+            {"pattern": "debug/yyyyMMddhh.log", "category": "logDebug"},  
+            {"pattern": "info/yyyyMMddhh.log", "category": "logInfo"},  
+            {"pattern": "warn/yyyyMMddhh.log", "category": "logWarn"},  
+            {"pattern": "err/yyyyMMddhh.log", "category": "logErr"}  
+        ],  
+        "replaceConsole": true,  
+        "levels":{ "logDebug": "DEBUG", "logInfo": "DEBUG", "logWarn": "DEBUG", "logErr": "DEBUG"}  
+}  

@@ -2,6 +2,8 @@ const gulp = require('gulp');
 const babel = require('gulp-babel');
 
 gulp.task('default', () => {
+    gulp.src('./*.json')
+        .pipe(gulp.dest('output'));
     gulp.src('./*.js')
         .pipe(babel({
             presets: ['stage-3']

@@ -1,4 +1,5 @@
 var Comment = require( '../models/comment' )
+var Feed = require( '../models/feed' )
 var express = require( 'express' )
 var router = express.Router()
 
@@ -40,6 +41,15 @@ router.route( '/comment/:feed_id' )
         return res.send( err )
       }
       // console.log('hehehehe', comment)
+      /* 更新feed的comments */
+      Feed.findById(req.params.feed_id).exec((err, feed) => {
+        if (err) {
+          return;
+        } else {
+          feed.comments.push(comment);
+          feed.save();
+        }
+      });
       res.send( comment )
     } )
   } )

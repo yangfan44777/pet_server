@@ -11,7 +11,14 @@ var _ = require( 'underscore' );
 var Promise = require('bluebird');
 var router = express.Router()
 
+var DurationLog = require("../util.js").DurationLog; 
 
+
+
+
+var startTime = function () {
+    this.st = +(new Date());
+};
 /*  */
 var findCommentsByFeedIdAsync = function (feedId) {
   return Comment.find({feed_id: feedId}).exec();
@@ -59,10 +66,12 @@ var findFeeds = async function (userid, orientation, sid, limit, offset) {
     return Promise.all(feeds);
 }
 
+
 /* 获取userid下的所有feeds，附加comments和likes */
 router.route( '/profile/feeds/:userid' )
   .get(async (req, res) => {
     try {
+        var dur = DurationLog.start(req);
         //var offset = parseInt(req.query.offset || 1);
         //var limit = parseInt(req.query.limit || 4);
         var orientation = req.query.ort;
@@ -70,7 +79,9 @@ router.route( '/profile/feeds/:userid' )
         var limit = req.query.limit || 5;
         var offset = req.query.offset || 1
 
-        return res.json(await findFeeds(req.params.userid, orientation, sid, limit, offset));
+        res.json(await findFeeds(req.params.userid, orientation, sid, limit, offset));
+        dur.end();
+        return;
     } catch (err) {
         return res.send(err);
     }
@@ -92,7 +103,7 @@ router.route( '/profile/follows/:userid' )
 /* 根据userid获取follows的详细信息 */
 router.route( '/profile/follows/detail/:userid' )
   .get(async ( req, res ) => {
-
+    //var dur = DurationLog.start(req);
     /* 被查找的userid */
     var userid = req.params.userid;
 
@@ -154,7 +165,9 @@ router.route( '/profile/follows/detail/:userid' )
                     }
                 });
             });
-            return res.json(await Promise.all(_follows));
+            res.json(await Promise.all(_follows));
+
+            return; //dur.end();
         } else {
             return res.end();
         }
