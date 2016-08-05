@@ -13,12 +13,6 @@ var router = express.Router()
 
 var DurationLog = require("../util.js").DurationLog; 
 
-
-
-
-var startTime = function () {
-    this.st = +(new Date());
-};
 /*  */
 var findCommentsByFeedIdAsync = function (feedId) {
   return Comment.find({feed_id: feedId}).exec();
