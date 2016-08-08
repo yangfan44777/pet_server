@@ -43,4 +43,19 @@ router.route('/like/cancel/:feed_id')
       res.send(err);
     }
   });
+
+
+  /* 迁移接口 */
+  router.route('/like/trans/do')
+    .get(async (req, res) => {
+      var allLikes = await Like.find().exec();
+
+      allLikes.forEach(async (like) => {
+        var feed = await Feed.findById(like.feed_id).exec();
+          console.log('aaa',like);
+        feed.likes.push(like);
+        feed.save();
+      });
+
+    });
 module.exports = router

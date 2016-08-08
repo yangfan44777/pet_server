@@ -54,4 +54,16 @@ router.route( '/comment/:feed_id' )
     } )
   } )
 
+  /* 迁移接口 */
+  router.route('/comment/trans/do')
+    .get(async (req, res) => {
+      var allComments = await Comment.find().exec();
+      allComments.forEach(async (comment) => {
+        var feed = await Feed.findById(comment.feed_id).exec();
+        feed.comments.push(comment);
+        feed.save();
+      });
+
+    });
+
 module.exports = router

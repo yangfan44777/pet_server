@@ -7,6 +7,7 @@ var Like = require( '../models/like' )
 var express = require( 'express' )
 var router = express.Router()
 var _ = require( 'underscore' )
+var Promise = require('bluebird');
 
 
 
@@ -29,6 +30,8 @@ router.route( '/feeds/delete/:feed_id' )
 
     } )
   } )
+
+
 /*  
  * 通过id，筛选出比id更早的元素或更晚的元素
  * @param arr {Array} 被计算数组
@@ -37,28 +40,23 @@ router.route( '/feeds/delete/:feed_id' )
  */
 var getListById = function (arr, id, type) {
 
-  var index = arr.indexOf(id);
-    /* 存在该id */
-  if (index > -1) {
-                                  /* +15是为了更新加载过的15条 */
-    return type == 1 ? arr.slice(0, index + 15) : arr.slice(index + 1, index + 7);
+  /* arr先排序 , _id就是时间线上的点,正序*/
 
-  } else {
+  arr = _.sortBy(arr);
 
-    var len = arr.length;
-    var i = 0;
-    for (; i < len; i++) {
-      if (arr[i] < id) {
-        break;
-      }
-    }
-    return type == 1 ? arr.slice(0, i) : arr.slice(i, i + 7);
-  }
+
+  /* 
+   * 存在该id, 即存在这个时间点，上刷新直接返回这个时间点之前的5条和之后的10条， 下刷新返回这个时间点的后7条
+   * 如果不存在该id ，即不存在这个时间点，查找大于这个时间点的最近的时间点
+   **/
+  var index = _.sortedIndex(arr, id);
+                                  /* -10是为了更新加载过的10条 */
+  return type == 1 ? arr.slice(index - 10 < 0 ? 0 : index - 10 , index + 5) : arr.slice(index - 7, index);
 };
 
 
 router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
-  .get(async (req, res) => {
+  .get( async (req, res) => {
     try {
       var params = req.params;
       /* 当前用户id */
@@ -74,17 +72,54 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
       
       var news = getListById(user.news, sid, parseInt(ort, 10));
 
-      var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({
-        path: 'comments',
-        match: {isdeleted: {$ne:1}}
+     // console.log(news);
+      //var st = +new Date();
+      var feeds = await Feed.find().sort({_id: -1})
+        .populate({
+          path: 'likes',
+          select: {
+            liker_id: 1,
+            liker_avator: 1
+          }
+        })
+        .populate({
+          path: 'comments',
+          match: {
+            isdeleted: {$ne:1}
+          },
+          select: {
+            _id:1,
+            commenter_id: 1,
+            commenter_nick: 1,
+            content: 1,
+            commentee: 1
+        }
       }).where('_id').in(news).exec();
 
-      /* 填充feeds的like_count和comment_count ,!!建议放在前端做*/
-      feeds.forEach((feed) => {
+
+
+      //var task = [];
+      /*var feeds = news.map((item)=> {
+        return new Promise(async (resolve, reject)=>{
+          try {
+          var _f = await Feed.findById(item).exec();
+          resolve(_f);
+        } catch (e) {
+          reject(e);
+        }
+        });
+      });
+      feeds = await Promise.all(feeds);*/
+
+      /* 填充feeds的like_count和comment_count ,!!建议放在前端做,提升1-2ms响应速度*/
+     feeds.forEach((feed) => {
         feed.like_count = feed.likes && feed.likes.length || 0;
         feed.comment_count = feed.comments && feed.comments.length || 0;
       });
 
+
+      //var et = +new Date();
+      //console.log('time:',et-st);
       res.json(feeds);
 
     } catch (e) {
