@@ -13,6 +13,7 @@ var notify = require( './routes/notify' )
 var topic = require( './routes/topic' )
 var article = require( './routes/article' )
 var feedback = require( './routes/feedback' )
+var banner = require( './routes/banner' )
 var checkApi = require('./routes/checkApi')
 var FileStreamRotator = require('file-stream-rotator');
 var logger = require('morgan');
@@ -34,8 +35,8 @@ app.use(logger('combined', {stream: accessLogStream}));
 /* 数据库 */
 var dbName = 'petDB'
 
-var connectionString = 'mongodb://101.200.150.4/' + dbName
-// var connectionString = 'mongodb://localhost/' + dbName
+// var connectionString = 'mongodb://101.200.150.4/' + dbName
+var connectionString = 'mongodb://localhost/' + dbName
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -66,6 +67,7 @@ app.use( '/api', notify )
 app.use( '/api', topic )
 app.use( '/api', article )
 app.use( '/api', feedback )
+app.use( '/api', banner )
 
 
 module.exports = app;

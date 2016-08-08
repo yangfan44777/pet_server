@@ -7,7 +7,8 @@ const topicSchema = new Schema( {
   title : String,
   image_url : String,
   desc : String,
-  feeds : Array
+  feeds : Array,
+  thumbnail : String
 } )
 
 var Topic = mongoose.model( 'Topic', topicSchema );
