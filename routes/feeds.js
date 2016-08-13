@@ -41,9 +41,7 @@ router.route( '/feeds/delete/:feed_id' )
 var getListById = function (arr, id, type) {
 
   /* arr先排序 , _id就是时间线上的点,正序*/
-
   arr = _.sortBy(arr);
-
 
   /* 
    * 存在该id, 即存在这个时间点，上刷新直接返回这个时间点之前的5条和之后的10条， 下刷新返回这个时间点的后7条
@@ -51,7 +49,7 @@ var getListById = function (arr, id, type) {
    **/
   var index = _.sortedIndex(arr, id);
                                   /* -10是为了更新加载过的10条 */
-  return type == 1 ? arr.slice(index - 10 < 0 ? 0 : index - 10 , index + 5) : arr.slice(index - 7, index);
+  return type == 1 ? arr.slice(index - 10 < 0 ? 0 : index - 10 , arr.length) : arr.slice(index - 7, index);
 };
 
 
@@ -75,7 +73,7 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
      // console.log(news);
       //var st = +new Date();
       var feeds = await Feed.find().sort({_id: -1})
-        .populate({
+        /*.populate({
           path: 'likes',
           select: {
             liker_id: 1,
@@ -94,7 +92,7 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
             content: 1,
             commentee: 1
         }
-      }).where('_id').in(news).exec();
+      })*/.where('_id').in(news).exec();
 
 
 
@@ -112,12 +110,12 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
       feeds = await Promise.all(feeds);*/
 
       /* 填充feeds的like_count和comment_count ,!!建议放在前端做,提升1-2ms响应速度*/
-     feeds.forEach((feed) => {
+      feeds.forEach((feed) => {
         feed.like_count = feed.likes && feed.likes.length || 0;
         feed.comment_count = feed.comments && feed.comments.length || 0;
       });
 
-
+      //console.log(feeds.length);
       //var et = +new Date();
       //console.log('time:',et-st);
       res.json(feeds);
