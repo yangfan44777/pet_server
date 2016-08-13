@@ -13,6 +13,7 @@ var notify = require( './routes/notify' )
 var topic = require( './routes/topic' )
 var article = require( './routes/article' )
 var feedback = require( './routes/feedback' )
+var banner = require( './routes/banner' )
 var checkApi = require('./routes/checkApi')
 var banner = require('./routes/banner')
 var FileStreamRotator = require('file-stream-rotator');
@@ -35,22 +36,30 @@ app.use(logger('combined', {stream: accessLogStream}));
 /* 数据库 */
 var dbName = 'petDB'
 
+<<<<<<< HEAD
 // var connectionString = 'mongodb://101.200.150.4/' + dbName
 var connectionString = 'mongodb://localhost/' + dbName
+=======
+//var connectionString = 'mongodb://101.200.150.4/' + dbName
+ var connectionString = 'mongodb://127.0.0.1/' + dbName + '?poolSize=100'
+>>>>>>> f540bcac70c8b859b404bc87e2b523561f9ab57b
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   // yay!
+  console.log('mongodb opend');
 });
 
 mongoose.connect( connectionString )
+
 
 /* 静态目录 */
 app.use( express.static(__dirname+ '/public')  )
 
 app.use( bodyParser.json() )
 app.use( bodyParser.urlencoded() )
+
 
 /* 验证api来源及是否合法 */
 var secretkey = 'dbb6e2c753660cbafa25a2639c059e5f';

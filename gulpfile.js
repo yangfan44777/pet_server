@@ -20,6 +20,10 @@ gulp.task('default', () => {
             presets: ['stage-3']
         }))
         .pipe(gulp.dest('output'));
+
+    gulp.src( './third_libs/**/*.*', { base : './' } )
+      .pipe( gulp.dest( 'output' ) )
+
     gulp.src('./bin/www', {base: './'})
         .pipe(babel({
             presets: ['stage-3']

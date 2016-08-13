@@ -52,7 +52,7 @@ router.route( '/user/info/:openid/:access_token' )
       result.nickname = extraInfo.nickname || result.nickname
 
       // 使用自定义性别
-      result.sex = extraInfo.sex || result.sex
+      // result.sex = extraInfo.sex || result.sex
 
       // 使用自定义位置
       if( extraInfo.location ) {
@@ -84,6 +84,10 @@ router.route( '/user/info/:openid/:access_token' )
 
         Follows.findOne( { userid : req.params.userid } ).exec( ( err, follows ) => {
           if( follows ) {
+            // console.log( follows.follows.indexOf( req.params.userid ) )
+            if( follows.follows.indexOf( req.params.userid ) !== -1 ) {
+              follows.follows.splice( follows.follows.indexOf( req.params.userid ), 1 )
+            }
             user.follow = follows.follows.length
           }
           if( c == 1 ) {
@@ -94,6 +98,9 @@ router.route( '/user/info/:openid/:access_token' )
 
         Followed.findOne( { userid : req.params.userid } ).exec( ( err, followed ) => {
           if( followed ) {
+            if( followed.followed.indexOf( req.params.userid ) !== -1 ) {
+              followed.followed.splice( followed.followed.indexOf( req.params.userid ), 1 )
+            }
             user.follower = followed.followed.length
           }
           if( c == 1 ){
