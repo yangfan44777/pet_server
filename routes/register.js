@@ -22,7 +22,7 @@ router.route('/register')
 
 			var user = await User.findOne({openid: phone}).exec();
 			if (user) {
-				return res.send('该手机号已注册过');
+				return res.json({err: 3, msg: '该手机号已注册'});
 			}
 
 			var phoneCode = await PhoneCode.findOneAndRemove({phone: phone, code: code, expire: {$gt: time}}).exec();
@@ -44,12 +44,12 @@ router.route('/register')
 
 	          	await Promise.all([user.save(), followed.save()]);
 
-				res.send('注册成功');
+				res.json({err: 0, data:{success:true, user: user}});
 			} else {
-				res.send('注册失败');
+				res.json({err: 1, msg: '验证码错误'});
 			}
 		} catch (err) {
-			res.send(err.toString());
+			res.json({err: 2, msg: '注册失败'});
 		}
 	});
 

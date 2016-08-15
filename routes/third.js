@@ -42,13 +42,13 @@ router.route('/code')
                 });
                 try {
                     await phoneCode.save();
-                    res.send('发送成功');
+                    res.json({err: 0, data:{success: true}});
                 } catch (err) {
-                    res.send('发送失败');
+                    res.json({err: 1, msg: '保存phoneCode失败'});
                 }
             } else {
                 console.log(error);
-                res.send('发送失败');
+                res.json({err: 2, msg: '验证码发送失败'});
             }
         });
 });
