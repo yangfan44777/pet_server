@@ -1,3 +1,9 @@
+var express = require( 'express' );
+var _ = require( 'underscore' );
+var Promise = require('bluebird');
+var PhoneCode = require('../models/phone_code');
+var router = express.Router();
+
 TopClient = require('../third_libs/alidayu/topClient').TopClient;
 var client = new TopClient({
     'appkey': '23427982',
@@ -5,14 +11,45 @@ var client = new TopClient({
     'REST_URL': 'http://gw.api.taobao.com/router/rest'
 });
 
-client.execute('alibaba.aliqin.fc.sms.num.send', {
-    // 'extend':'123456',
-    'sms_type':'normal',
-    'sms_free_sign_name':'宠拜',
-    'sms_param':'{\"code\":\"1234\",\"product\":\"[宠拜]\"}',
-    'rec_num':'18810935839',
-    'sms_template_code':'SMS_13010787'
-}, function(error, response) {
-    if (!error) console.log(response);
-    else console.log(error);
-})
+router.route('/code')
+    .post(async (req, res) => {
+
+        var phone = req.body.phone;
+        /* 四个 0 - 9 随机数*/
+        var code = [
+            Math.floor(Math.random() * 10),
+            Math.floor(Math.random() * 10),
+            Math.floor(Math.random() * 10),
+            Math.floor(Math.random() * 10)
+        ].join('');
+
+        client.execute('alibaba.aliqin.fc.sms.num.send', {
+            // 'extend':'123456',
+            'sms_type':'normal',
+            'sms_free_sign_name':'宠拜',
+            'sms_param':'{\"code\":\"' + code + '\",\"product\":\"[宠拜]\"}',
+            'rec_num': phone,
+            'sms_template_code':'SMS_13010787'
+        }, async function(error, response) {
+            if (!error) {
+                
+                /* 保存手机号和验证码信息，用于注册验证 */
+                //savePhoneAndCode(phone, code);
+                var phoneCode = new PhoneCode({
+                    phone: phone,
+                    code: code,
+                    expire: + new Date() + 300000 //5分钟有效
+                });
+                try {
+                    await phoneCode.save();
+                    res.send('发送成功');
+                } catch (err) {
+                    res.send('发送失败');
+                }
+            } else {
+                console.log(error);
+                res.send('发送失败');
+            }
+        });
+});
+module.exports = router;
