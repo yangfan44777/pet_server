@@ -5,8 +5,27 @@ var request = require( 'request' )
 var express = require( 'express' )
 var Follows = require( '../models/follows' )
 var Followed = require( '../models/followed' )
+var PhoneCode = require('../models/phone_code');
 var router = express.Router()
 
+router.route('/login')
+  .post(async (req, res) => {
+      var phone = req.body.phone;
+      var code = req.body.code;
+      var time = +new Date();
+      /*  */
+      try {
+        var phoneCode = await PhoneCode.findOneAndRemove({phone: phone, code: code, expire: {$gt: time}}).exec();
+        if (phoneCode) {
+          res.json({err: 0, data: {userid: phone}});
+        } else {
+          res.json({err: 1, msg: '登录失败'});
+        }
+      } catch (e) {
+        res.json({err: 1, msg: '登录失败'});
+      }
+
+  });
 
 router.route( '/user/auth/:code' )
   // 获取一个 feed
