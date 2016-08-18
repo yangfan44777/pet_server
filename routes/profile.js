@@ -35,7 +35,7 @@ var findFeeds = async function (userid, orientation, sid, limit, offset) {
         /*默认加载前10条*/
         feeds = await Feed.pageQuery(offset, limit, {userid: userid}, null, {sort: {_id: -1}});
     }
-
+    /*
     feeds = feeds.map((feed) => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -56,8 +56,15 @@ var findFeeds = async function (userid, orientation, sid, limit, offset) {
             }
         });
     });
+    */
+    //return Promise.all(feeds);
 
-    return Promise.all(feeds);
+    /* 填充feeds的like_count和comment_count ,!!建议放在前端做,提升1-2ms响应速度*/
+    feeds.forEach((feed) => {
+        feed.like_count = feed.likes && feed.likes.length || 0;
+        feed.comment_count = feed.comments && feed.comments.length || 0;
+    });
+    return feeds;
 }
 
 
@@ -65,6 +72,7 @@ var findFeeds = async function (userid, orientation, sid, limit, offset) {
 router.route( '/profile/feeds/:userid' )
   .get(async (req, res) => {
     try {
+
         var dur = DurationLog.start(req);
         //var offset = parseInt(req.query.offset || 1);
         //var limit = parseInt(req.query.limit || 4);
