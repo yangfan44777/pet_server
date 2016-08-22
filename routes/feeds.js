@@ -319,10 +319,13 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
       
       var topicFeeds = getListById(topic.feeds, sid, parseInt(ort, 10));
 
-      var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({
+      /*var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({
         path: 'comments',
         match: {isdeleted: {$ne:1}}
-      }).where('_id').in(topicFeeds).exec();
+      }).where('_id').in(topicFeeds).exec();*/
+
+
+      var feeds = await Feed.find().sort({_id: -1}).where('_id').in(topicFeeds).exec();
 
       /* 填充feeds的like_count和comment_count ,!!建议放在前端做*/
       feeds.forEach((feed) => {
