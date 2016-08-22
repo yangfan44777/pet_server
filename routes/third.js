@@ -29,10 +29,10 @@ router.route('/code')
             'sms_free_sign_name':'宠拜',
             'sms_param':'{\"code\":\"' + code + '\",\"product\":\"[宠拜]\"}',
             'rec_num': phone,
-            'sms_template_code':'SMS_13010787'
+            'sms_template_code':'SMS_13010789'
         }, async function(error, response) {
             if (!error) {
-                
+
                 /* 保存手机号和验证码信息，用于注册验证 */
                 //savePhoneAndCode(phone, code);
                 var phoneCode = new PhoneCode({

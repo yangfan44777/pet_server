@@ -13,34 +13,39 @@ router.route( '/feed/:feed_id' )
       if( feed.isdeleted === 1 ) {
         return res.json( { isdeleted : 1 } )
       }
-      var _counter = 0
-      Comment.find( { feed_id : `${feed._id}` } )
-        // .sort( { _id : -1 } )
-        .exec( ( err, comments ) => {
-          if( ! err ) {
-            feed.comments = comments
-            feed.comment_count = comments.length
-          }
-        } ).then( () => {
-          if( ( ++_counter ) === 2 ) {
-            res.json( feed )
-          }
-        } )
 
-      Like.find( { feed_id : `${feed._id}` } )
-        .sort( { _id : -1 } )
-        .exec( ( err, likes ) => {
-          if( ! err ) {
-            feed.likes = likes
-            feed.like_count = likes.length
-          }
-        } ).then( () => {
-          if( ( ++_counter ) === 2 ) {
-            res.json( feed )
-          }
-        } )
+      // feeds.forEach((feed) => {
+          feed.like_count = feed.likes && feed.likes.length || 0;
+          feed.comment_count = feed.comments && feed.comments.length || 0;
+      // });
+      // var _counter = 0
+      // Comment.find( { feed_id : `${feed._id}` } )
+      //   // .sort( { _id : -1 } )
+      //   .exec( ( err, comments ) => {
+      //     if( ! err ) {
+      //       feed.comments = comments
+      //       feed.comment_count = comments.length
+      //     }
+      //   } ).then( () => {
+      //     if( ( ++_counter ) === 2 ) {
+      //       res.json( feed )
+      //     }
+      //   } )
+      //
+      // Like.find( { feed_id : `${feed._id}` } )
+      //   .sort( { _id : -1 } )
+      //   .exec( ( err, likes ) => {
+      //     if( ! err ) {
+      //       feed.likes = likes
+      //       feed.like_count = likes.length
+      //     }
+      //   } ).then( () => {
+      //     if( ( ++_counter ) === 2 ) {
+      //       res.json( feed )
+      //     }
+      //   } )
 
-      // res.json( feeds )
+      res.json( feed )
     } )
   } )
 

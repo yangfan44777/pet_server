@@ -9,7 +9,18 @@ var router = express.Router()
 var _ = require( 'underscore' )
 var Promise = require('bluebird');
 
+router.route( '/feeds/wash/delete' )
+  .get( async ( req, res ) => {
+    const allFeeds = await Feed.find().exec()
+    allFeeds.forEach( async ( feed ) => {
 
+      var feed = await Feed.findById(feed._id).exec();
+      if( feed.isdeleted !== 1 ) {
+        feed.isdeleted = 0
+        feed.save()
+      }
+    } )
+  } )
 
 router.route( '/feeds/delete/:feed_id' )
   .put( ( req, res ) => {
@@ -32,10 +43,10 @@ router.route( '/feeds/delete/:feed_id' )
   } )
 
 
-/*  
+/*
  * 通过id，筛选出比id更早的元素或更晚的元素
  * @param arr {Array} 被计算数组
- * @param id {String} 查找的id  
+ * @param id {String} 查找的id
  * @param type {Number} 上翻还是下翻，1上，2下
  */
 var getListById = function (arr, id, type) {
@@ -43,7 +54,7 @@ var getListById = function (arr, id, type) {
   /* arr先排序 , _id就是时间线上的点,正序*/
   arr = _.sortBy(arr);
 
-  /* 
+  /*
    * 存在该id, 即存在这个时间点，上刷新直接返回这个时间点之前的5条和之后的10条， 下刷新返回这个时间点的后7条
    * 如果不存在该id ，即不存在这个时间点，查找大于这个时间点的最近的时间点
    **/
@@ -67,7 +78,7 @@ router.route( '/feeds/following/:userid/:latest/:earliest/:type' )
       var user = await User.findOne({openid: userid}).exec();
       /* 最终返回的数组 */
       var feeds = [];
-      
+
       var news = getListById(user.news, sid, parseInt(ort, 10));
 
      // console.log(news);
@@ -224,6 +235,7 @@ router.route( '/feeds' )
   // 提交一个 feed
   .post( ( req, res ) => {
 
+    req.body.isdeleted = 0
     var feed = new Feed( req.body )
 
     feed.save( ( err ) => {
@@ -316,7 +328,7 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
       var topic = await Topic.findOne({title: params.topic.replace( /#/g, '' )}).exec();
       /* 最终返回的数组 */
       var feeds = [];
-      
+
       var topicFeeds = getListById(topic.feeds, sid, parseInt(ort, 10));
 
       var feeds = await Feed.find().sort({_id: -1}).populate('likes').populate({

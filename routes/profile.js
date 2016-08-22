@@ -11,7 +11,7 @@ var _ = require( 'underscore' );
 var Promise = require('bluebird');
 var router = express.Router()
 
-var DurationLog = require("../util.js").DurationLog; 
+var DurationLog = require("../util.js").DurationLog;
 
 /*  */
 var findCommentsByFeedIdAsync = function (feedId) {
@@ -148,7 +148,7 @@ router.route( '/profile/follows/detail/:userid' )
                 return new Promise(async (resolve, reject) => {
                     try {
                         var user = await User.findOne({openid : follow}).exec();
-                        var feeds = await Feed.pageQuery(1, 3,  {userid: user.openid}, null, {sort:{_id: -1}});
+                        var feeds = await Feed.pageQuery(1, 3,  {userid: user.openid, isdeleted : 0}, null, {sort:{_id: -1}});
                         var feedsResult = [];
 
                         feeds.forEach((feed) => {
@@ -202,6 +202,8 @@ router.route( '/profile/fans/detail/:userid' )
         var _followed = followed && followed.followed;
 
 
+
+
         /* 获取当前页的followed */
         //var _followed = followed && followed.followed.slice((offset - 1) * limit, offset * limit);
 
@@ -209,6 +211,7 @@ router.route( '/profile/fans/detail/:userid' )
 
             if (req.query.offset && req.query.limit) {
                 _followed = _followed.slice((offset - 1) * limit, offset * limit);
+                console.log( _followed )
             } else if (ort && sid) {
                 var index = _followed.indexOf(sid);
                 if (parseInt(ort, 10) === 1) {
@@ -222,9 +225,8 @@ router.route( '/profile/fans/detail/:userid' )
                 return new Promise(async (resolve, reject) => {
                     try {
                         var user = await User.findOne({openid : follow}).exec();
-                        var feeds = await Feed.pageQuery(1, 3, {userid: user.openid}, null, {sort:{_id: -1}});
+                        var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : 0}, null, {sort:{_id: -1}});
                         var feedsResult = [];
-
                         feeds.forEach((feed) => {
                             feedsResult.push({
                                 image: feed.image
@@ -340,7 +342,7 @@ router.route( '/profile/recommend/detail' )
                     //var userDetail = User.findOne({openid: userid}).exec();
 
                     const feedsResult = [];
-                    var feeds = await Feed.pageQuery(1, 3, {userid: user.openid}, null, {sort: {_id: -1}});
+                    var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : 0}, null, {sort: {_id: -1}});
                     // console.log( feeds )
                     feeds.forEach((feed) => {
                         feedsResult.push({

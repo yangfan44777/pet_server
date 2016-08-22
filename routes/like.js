@@ -2,6 +2,7 @@ var Like = require( '../models/like' )
 var Feed = require( '../models/feed' )
 var express = require( 'express' )
 var router = express.Router()
+var _ = require( 'underscore' )
 
 router.route( '/like/:feed_id' )
   .get( async ( req, res ) => {
@@ -53,7 +54,7 @@ router.route('/like/cancel/:feed_id')
       if (idx > -1) {
         var like = feed.likes.splice(idx, 1);
         await feed.save();
-        res.json(like);
+        res.json({ ok : 1 });
       }
     } catch (err) {
       res.send(err);
