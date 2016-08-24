@@ -6,6 +6,7 @@ var express = require( 'express' )
 var Follows = require( '../models/follows' )
 var Followed = require( '../models/followed' )
 var PhoneCode = require('../models/phone_code');
+var logger = require('../logHelper').helper; 
 var router = express.Router()
 
 router.route('/login')
@@ -267,12 +268,16 @@ router.route( '/user/info/:openid/:access_token' )
 
   router.route( '/user/register' )
     .post( ( req, res ) => {
-      var c = 0
+      var c = 0;
+      var debugid = + new Date();
+      logger.debug(debugid + ', /user/register, req body:' + JSON.stringify(req.body));
       User.findOne( { openid : req.body.openid }, async ( err, user ) => {
         if( err ){
+          logger.debug(debugid + ' /user/register, error: ' + err.toString());
           return res.send( err )
         }
         if( user ) {
+          logger.debug(debugid + ' /user/register, has user: ' + JSON.stringify(user));
           for( let prop in req.body ){
             user.headimgurl = req.body.headimgurl
             user.nickname = req.body.nickname
@@ -284,32 +289,40 @@ router.route( '/user/info/:openid/:access_token' )
           }
           user.save( ( err ) => {
             if( err ) {
+              logger.debug(debugid + ' /user/register, user update error: ' + err.toString());
               return res.send( err )
             }
             // console.log( 'hehehehe' )
+            logger.debug(debugid + ' /user/register, user update success.');
             return res.send( { message : 'User info synced.', not_new : 1 } )
           } )
           // res.send( { message : 'User exist.' } )
         } else {
-
+          logger.debug(debugid + ' /user/register, new user');
           req.body.province = req.body.province || ''
           req.body.city = req.body.city || ''
           req.body.sex = parseInt( req.body.sex ) || 0
           req.body.device_token = req.body.device_token || ''
 
 
-          const user = new User( req.body )
-          // console.log( user )
-          // user.news.push( user._id )
-          const followed = new Followed( {
-            userid : req.body.openid,
-            followed : [ req.body.openid ]
-          } )
+          try {
+            const user = new User( req.body )
+            // console.log( user )
+            // user.news.push( user._id )
+            const followed = new Followed( {
+              userid : req.body.openid,
+              followed : [ req.body.openid ]
+            } )
 
-          await followed.save();
-          await user.save()
-          return res.send( { message : 'Followed added.', not_new : 0 } )
-
+            await followed.save();
+            logger.debug(debugid + ' /user/register,  followed save success.');
+            await user.save()
+            logger.debug(debugid + ' /user/register, new user save success. send: {message: \'Followed added.\', not_new: 0}');
+            return res.send( { message : 'Followed added.', not_new : 0 } )
+          } catch (err) {
+            logger.debug(debugid + ' /user/register, create new user error: ' + err.toString());
+            return res.json({err: 1, msg: err.toString()});
+          }
           // followed.save( ( err ) => {
           //   if( err ) {
           //     return res.send( err )
