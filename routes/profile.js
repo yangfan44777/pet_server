@@ -148,7 +148,7 @@ router.route( '/profile/follows/detail/:userid' )
                 return new Promise(async (resolve, reject) => {
                     try {
                         var user = await User.findOne({openid : follow}).exec();
-                        var feeds = await Feed.pageQuery(1, 3,  {userid: user.openid, isdeleted : 0}, null, {sort:{_id: -1}});
+                        var feeds = await Feed.pageQuery(1, 3,  {userid: user.openid, isdeleted : {$ne:1}}, null, {sort:{_id: -1}});
                         var feedsResult = [];
 
                         feeds.forEach((feed) => {
@@ -225,7 +225,7 @@ router.route( '/profile/fans/detail/:userid' )
                 return new Promise(async (resolve, reject) => {
                     try {
                         var user = await User.findOne({openid : follow}).exec();
-                        var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : 0}, null, {sort:{_id: -1}});
+                        var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : {$ne:1}}, null, {sort:{_id: -1}});
                         var feedsResult = [];
                         feeds.forEach((feed) => {
                             feedsResult.push({
@@ -342,7 +342,7 @@ router.route( '/profile/recommend/detail' )
                     //var userDetail = User.findOne({openid: userid}).exec();
 
                     const feedsResult = [];
-                    var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : 0}, null, {sort: {_id: -1}});
+                    var feeds = await Feed.pageQuery(1, 3, {userid: user.openid, isdeleted : {$ne:1}}, null, {sort: {_id: -1}});
                     // console.log( feeds )
                     feeds.forEach((feed) => {
                         feedsResult.push({

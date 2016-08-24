@@ -38,8 +38,8 @@ app.use(logger('combined', {stream: accessLogStream}));
 /* 数据库 */
 var dbName = 'petDB'
 
-var connectionString = 'mongodb://101.200.150.4/' + dbName + '?poolSize=100'
-// var connectionString = 'mongodb://127.0.0.1/' + dbName + '?poolSize=100'
+// var connectionString = 'mongodb://101.200.150.4/' + dbName + '?poolSize=100'
+var connectionString = 'mongodb://127.0.0.1/' + dbName + '?poolSize=100'
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

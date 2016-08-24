@@ -343,7 +343,7 @@ router.route( '/feeds/topic/:topic/:latest/:earliest/:type' )
       feeds.forEach((feed) => {
         feed.like_count = feed.likes && feed.likes.length || 0;
         feed.comment_count = feed.comments && feed.comments.length || 0;
-        feed.comments = _.filter( feed.likes, ( item ) => { return item.isdeleted !== 1 } )
+        feed.comments = _.filter( feed.comments, ( item ) => { return item.isdeleted !== 1 } )
       });
 
       res.json(feeds);
